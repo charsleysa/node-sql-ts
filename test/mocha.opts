@@ -1,2 +1,5 @@
 --reporter dot
 --ui tdd
+--require ts-node/register
+--watch-extensions tsx,ts
+test/*.ts

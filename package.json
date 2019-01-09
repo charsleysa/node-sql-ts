@@ -1,30 +1,42 @@
 {
-  "author": "brianc <brian.m.carlson@gmail.com>",
-  "name": "sql",
-  "description": "sql builder",
-  "version": "0.78.0",
-  "homepage": "https://github.com/brianc/node-sql",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/brianc/node-sql.git"
-  },
-  "main": "lib/",
-  "types": "lib/types.d.ts",
-  "scripts": {
-    "test": "node_modules/.bin/mocha",
-    "lint": "jshint lib test",
-    "posttest": "jshint lib test"
-  },
-  "engines": {
-    "node": "*"
-  },
-  "dependencies": {
-    "sliced": "0.0.x",
-    "lodash": "4.1.x"
-  },
-  "devDependencies": {
-    "jshint": "*",
-    "mocha": "*"
-  }
+    "author": {
+        "name": "Stefan Charsley",
+        "email": "charsleysa@gmail.com"
+    },
+    "name": "sql-ts",
+    "description": "SQL Builder",
+    "version": "1.0.0",
+    "homepage": "https://github.com/charsleysa/node-sql-ts",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/charsleysa/node-sql-ts.git"
+    },
+    "main": "dist/",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "pretest": "tslint --project .",
+        "test": "node_modules/.bin/mocha --opts ./test/mocha.opts",
+        "lint": "tslint --project .",
+        "release:major": "npm run test && npm version major -m \"Bump version\" && git push origin master --tags && npm publish",
+        "release:minor": "npm run test && npm version major -m \"Bump version\" && git push origin master --tags && npm publish",
+        "release:patch": "npm run test && npm version major -m \"Bump version\" && git push origin master --tags && npm publish"
+    },
+    "engines": {
+        "node": "*"
+    },
+    "dependencies": {
+        "sliced": "~1.0.x",
+        "lodash": "~4.17.x"
+    },
+    "devDependencies": {
+        "@types/lodash": "^4.14.119",
+        "@types/mocha": "^5.2.5",
+        "@types/node": "^10.12.18",
+        "mocha": "*",
+        "typescript": "^3.2.2",
+        "ts-node": "^7.0.1",
+        "tslint": "^5.12.0",
+        "tslint-config-prettier": "^1.17.0"
+    }
 }
