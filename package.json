@@ -19,8 +19,8 @@
         "test": "node_modules/.bin/mocha --opts ./test/mocha.opts",
         "lint": "tslint --project .",
         "release:major": "npm run test && npm version major -m \"Bump version\" && git push origin master --tags && npm publish",
-        "release:minor": "npm run test && npm version major -m \"Bump version\" && git push origin master --tags && npm publish",
-        "release:patch": "npm run test && npm version major -m \"Bump version\" && git push origin master --tags && npm publish"
+        "release:minor": "npm run test && npm version minor -m \"Bump version\" && git push origin master --tags && npm publish",
+        "release:patch": "npm run test && npm version patch -m \"Bump version\" && git push origin master --tags && npm publish"
     },
     "engines": {
         "node": "*"
