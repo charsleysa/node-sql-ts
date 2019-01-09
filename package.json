@@ -5,7 +5,7 @@
     },
     "name": "sql-ts",
     "description": "SQL Builder",
-    "version": "0.78.0",
+    "version": "1.0.0",
     "homepage": "https://github.com/charsleysa/node-sql-ts",
     "license": "MIT",
     "repository": {
