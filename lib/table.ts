@@ -2,12 +2,12 @@
 
 import lodash = require('lodash');
 
-import { Sql } from './';
 import { Column } from './column';
 import { ColumnDefinition, TableDefinition } from './configTypes';
 import { leftJoin } from './joiner';
 import { ColumnNode, ForeignKeyNode, JoinNode, LiteralNode, Node, OrderByValueNode, Query, SubQuery, TableNode } from './node';
 import { INodeable } from './nodeable';
+import { Sql } from './sql';
 
 export type TableWithColumns<T> = Table<T> & { [Name in NonNullable<keyof T>]: Column<T[Name]> };
 

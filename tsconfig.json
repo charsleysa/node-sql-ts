@@ -18,7 +18,7 @@
         "removeComments": false,
         "noImplicitReturns": true,
         "declaration": true,
-        "baseUrl": "./",
+        "baseUrl": "./lib",
         "typeRoots": ["@types", "node_modules/@types"]
     },
     "include": ["./lib/**/*.ts", "./lib/**/*.js", "./lib/**/*.d.ts"],

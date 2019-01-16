@@ -1,4 +1,4 @@
-import { Sql } from './';
+import { Sql } from './sql';
 
 export type SQLDialects = 'mssql' | 'mysql' | 'oracle' | 'postgres' | 'sqlite';
 

@@ -2,9 +2,9 @@
 
 import assert = require('assert');
 import { TextNode } from '.';
-import { Sql } from '..';
 import { DEFAULT_DIALECT, getDialect } from '../dialect';
 import { INodeable, instanceofINodeable } from '../nodeable';
+import { Sql } from '../sql';
 
 export abstract class Node implements INodeable {
     public sql?: Sql;

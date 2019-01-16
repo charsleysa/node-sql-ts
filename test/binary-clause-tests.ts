@@ -10,8 +10,6 @@ const Foo = Table.define<{ baz: string; bar: string }>({
 
 test('operators', function() {
     equal(Foo.baz.equals(1).operator, '=');
-    equal(Foo.baz.equal(1).operator, '=');
-    equal(Foo.baz.notEqual(1).operator, '<>');
     equal(Foo.baz.notEquals(1).operator, '<>');
     equal(Foo.baz.like('asdf').operator, 'LIKE');
     equal(Foo.baz.notLike('asdf').operator, 'NOT LIKE');
