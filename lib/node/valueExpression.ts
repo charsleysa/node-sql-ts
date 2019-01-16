@@ -174,9 +174,7 @@ export interface IValueExpressionMixinBase {
     isNull(): PostfixUnaryNode;
     isNotNull(): PostfixUnaryNode;
     equals(val: any): BinaryNode;
-    equal(val: any): BinaryNode;
     notEquals(val: any): BinaryNode;
-    notEqual(val: any): BinaryNode;
     gt(val: any): BinaryNode;
     gte(val: any): BinaryNode;
     lt(val: any): BinaryNode;
