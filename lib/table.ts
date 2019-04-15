@@ -207,9 +207,9 @@ export class Table<T> implements INodeable {
         };
         return query as SubQuery<T>;
     }
-    public insert(...args: any[]): Query<T> {
+    public insert(...args: Array<Partial<T> | Array<Partial<T>>>): Query<T> {
         const query = new Query<T>(this);
-        if (!args[0] || (Array.isArray(args[0]) && args[0].length === 0)) {
+        if (!args[0] || (Array.isArray(args[0]) && (args[0] as Array<Partial<T>>).length === 0)) {
             query.select(this.star());
             query.where('1=2');
         } else {
@@ -217,9 +217,9 @@ export class Table<T> implements INodeable {
         }
         return query;
     }
-    public replace(...args: any[]): Query<T> {
+    public replace(...args: Array<Partial<T> | Array<Partial<T>>>): Query<T> {
         const query = new Query<T>(this);
-        if (!args[0] || (Array.isArray(args[0]) && args[0].length === 0)) {
+        if (!args[0] || (Array.isArray(args[0]) && (args[0] as Array<Partial<T>>).length === 0)) {
             query.select(this.star());
             query.where('1=2');
         } else {

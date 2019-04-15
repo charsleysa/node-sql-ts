@@ -227,6 +227,7 @@ export class Query<T> extends Node {
     }
 
     public insert(object: Array<Partial<T>> | Partial<T> | Array<Column<any>> | Column<any>): this;
+    public insert(...nodes: Array<Array<Partial<T>> | Partial<T>>): this;
     public insert(...nodes: Array<Column<any>>): this;
     public insert(...nodes: Array<Array<Column<any>> | Column<any> | Array<Partial<T>> | Partial<T>>): this {
         let args = sliced(nodes) as Array<Column<any>>;
@@ -258,6 +259,7 @@ export class Query<T> extends Node {
     }
 
     public replace(object: Array<Partial<T>> | Partial<T> | Array<Column<any>> | Column<any>): this;
+    public replace(...nodes: Array<Array<Partial<T>> | Partial<T>>): this;
     public replace(...nodes: Array<Column<any>>): this;
     public replace(...nodes: Array<Array<Column<any>> | Column<any> | Array<Partial<T>> | Partial<T>>): this {
         let args = sliced(nodes) as Array<Column<any>>;
