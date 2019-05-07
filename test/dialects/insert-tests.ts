@@ -697,8 +697,8 @@ Harness.test({
 Harness.test({
     query: customerAliasTable
         .insert({
-            id: 2,
-            name: 'test'
+            id_alias: 2,
+            name_alias: 'test'
         })
         .onConflict({
             columns: ['id'],
@@ -726,8 +726,8 @@ Harness.test({
 Harness.test({
     query: customerAliasTable
         .insert({
-            id: 2,
-            name: 'test'
+            id_alias: 2,
+            name_alias: 'test'
         })
         .orIgnore(),
     mysql: {

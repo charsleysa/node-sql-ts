@@ -1,12 +1,12 @@
 'use strict';
 import assert = require('assert');
 
-import { Table } from '../../lib/table';
+import { Mssql } from '../../lib/dialect/mssql';
+import { Mysql } from '../../lib/dialect/mysql';
+import { Oracle } from '../../lib/dialect/oracle';
 import { Postgres } from '../../lib/dialect/postgres';
 import { Sqlite } from '../../lib/dialect/sqlite';
-import { Mysql } from '../../lib/dialect/mysql';
-import { Mssql } from '../../lib/dialect/mssql';
-import { Oracle } from '../../lib/dialect/oracle';
+import { Table } from '../../lib/table';
 
 // specify dialect classes
 const dialects = {
@@ -20,11 +20,11 @@ const dialects = {
 function customTest(expected: any) {
     // for each dialect
     Object.keys(dialects).forEach(function(dialect) {
-        var expectedObject = expected[dialect];
+        const expectedObject = expected[dialect];
         if (undefined !== expectedObject) {
-            var DialectClass = (dialects as any)[dialect];
+            const DialectClass = (dialects as any)[dialect];
 
-            var title = dialect + ': ' + (expected.title || expectedObject.text || expectedObject);
+            const title = dialect + ': ' + (expected.title || expectedObject.text || expectedObject);
             test(title, function() {
                 // check if this query is expected to throw
                 if (expectedObject.throws) {
@@ -33,17 +33,17 @@ function customTest(expected: any) {
                     });
                 } else {
                     // build query for dialect
-                    var compiledQuery = new DialectClass(expectedObject.config || {}).getQuery(expected.query);
+                    const compiledQuery = new DialectClass(expectedObject.config || {}).getQuery(expected.query);
 
                     // test result is correct
-                    var expectedText = expectedObject.text || expectedObject;
+                    const expectedText = expectedObject.text || expectedObject;
                     assert.equal(compiledQuery.text, expectedText);
 
                     // if params are specified then test these are correct
-                    var expectedParams = expectedObject.params || expected.params;
+                    const expectedParams = expectedObject.params || expected.params;
                     if (undefined !== expectedParams) {
                         assert.equal(expectedParams.length, compiledQuery.values.length, 'params length');
-                        for (var i = 0; i < expectedParams.length; i++) {
+                        for (let i = 0; i < expectedParams.length; i++) {
                             assert.deepEqual(expectedParams[i], compiledQuery.values[i], 'param ' + (i + 1));
                         }
                     }
@@ -56,7 +56,7 @@ function customTest(expected: any) {
                             new DialectClass(expectedObject.config || {}).getString(expected.query);
                         });
                     } else {
-                        var compiledString = new DialectClass(expectedObject.config || {}).getString(expected.query);
+                        const compiledString = new DialectClass(expectedObject.config || {}).getString(expected.query);
 
                         // test result is correct
                         assert.equal(compiledString, expectedObject.string);
@@ -180,9 +180,9 @@ export function defineVariableTable() {
 }
 
 export interface ContentTable {
-    content_id: number;
+    contentId: number;
     text: string;
-    content_posts: string;
+    contentPosts: string;
 }
 
 // this table is for testing snakeName related stuff

@@ -164,7 +164,7 @@ export class Postgres extends Dialect {
     public _getParameterPlaceholder(index: string | number, value: any): string {
         return '$' + index;
     }
-    public getQuery(queryNode: Query<any> | Table<any>) {
+    public getQuery(queryNode: Query<any> | Table<any>): { text: string, values: string[] } {
         // passed in a table, not a query
         if (queryNode instanceof Table) {
             queryNode = queryNode.select(queryNode.star());

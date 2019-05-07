@@ -207,23 +207,29 @@ export class Table<T> implements INodeable {
         };
         return query as SubQuery<T>;
     }
-    public insert(...args: any[]): Query<T> {
+    public insert(object: Array<Column<any>> | Column<any>): Query<T>;
+    public insert(object: Array<PartialNodeable<T>> | PartialNodeable<T>): Query<T>;
+    public insert(...nodes: Array<Column<any>>): Query<T>;
+    public insert(...nodes: Array<Array<Column<any>> | Column<any> | Array<PartialNodeable<T>> | PartialNodeable<T>>): Query<T> {
         const query = new Query<T>(this);
-        if (!args[0] || (Array.isArray(args[0]) && args[0].length === 0)) {
+        if (!nodes[0] || (Array.isArray(nodes[0]) && (nodes[0] as Array<Column<any>> | Array<PartialNodeable<T>>).length === 0)) {
             query.select(this.star());
             query.where('1=2');
         } else {
-            query.insert(...args);
+            query.insert(...nodes as any);
         }
         return query;
     }
-    public replace(...args: any[]): Query<T> {
+    public replace(object: Array<Column<any>> | Column<any>): Query<T>;
+    public replace(object: Array<PartialNodeable<T>> | PartialNodeable<T>): Query<T>;
+    public replace(...nodes: Array<Column<any>>): Query<T>;
+    public replace(...nodes: Array<Array<Column<any>> | Column<any> | Array<PartialNodeable<T>> | PartialNodeable<T>>): Query<T> {
         const query = new Query<T>(this);
-        if (!args[0] || (Array.isArray(args[0]) && args[0].length === 0)) {
+        if (!nodes[0] || (Array.isArray(nodes[0]) && (nodes[0] as Array<Column<any>> | Array<PartialNodeable<T>>).length === 0)) {
             query.select(this.star());
             query.where('1=2');
         } else {
-            query.replace(...args);
+            query.replace(...nodes as any);
         }
         return query;
     }
@@ -266,7 +272,7 @@ queryMethods.forEach((method) => {
     };
 });
 
-type PartialNodeable<T> = { [P in keyof T]?: T[P] | INodeable };
+type PartialNodeable<T> = { [P in keyof T]?: T[P] | INodeable | Buffer };
 
 export interface Table<T> {
     alter(): Query<T>;

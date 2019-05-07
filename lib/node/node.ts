@@ -1,8 +1,9 @@
 'use strict';
 
 import assert = require('assert');
-import { TextNode } from '.';
+import { Query, TextNode } from '.';
 import { DEFAULT_DIALECT, getDialect } from '../dialect';
+import { Dialect } from '../dialect/dialect';
 import { INodeable, instanceofINodeable } from '../nodeable';
 import { Sql } from '../sql';
 
@@ -36,20 +37,19 @@ export abstract class Node implements INodeable {
         return this;
     }
     public toQuery(dialect?: string) {
-        const Dialect = determineDialect(this, dialect);
-        return initializeDialect(Dialect, this).getQuery(this);
+        const DialectClass = determineDialect(this, dialect);
+        return initializeDialect(DialectClass, this).getQuery(this as unknown as Query<any>);
     }
     public toNamedQuery(name: string, dialect?: string) {
         if (!name || typeof name !== 'string' || name === '') {
             throw new Error('A query name has to be a non-empty String.');
         }
         const query = this.toQuery(dialect);
-        query.name = name;
-        return query;
+        return { ...query, name };
     }
     public toString(dialect?: string) {
-        const Dialect = determineDialect(this, dialect);
-        return initializeDialect(Dialect, this).getString(this);
+        const DialectClass = determineDialect(this, dialect);
+        return initializeDialect(DialectClass, this).getString(this as unknown as Query<any>);
     }
     public addAll(nodes: Array<Node | INodeable | string>) {
         for (let i = 0, len = nodes.length; i < len; i++) {
@@ -62,25 +62,25 @@ export abstract class Node implements INodeable {
 // Before the change that introduced parallel dialects, every node could be turned
 // into a query. The parallel dialects change made it impossible to change some nodes
 // into a query because not all nodes are constructed with the sql instance.
-const determineDialect = (query: any, dialect?: string) => {
+const determineDialect = (query: any, dialect?: string): typeof Dialect & NewableFunction => {
     const sql = query.sql || (query.table && query.table.sql);
-    let Dialect;
+    let DialectClass;
 
     if (dialect) {
         // dialect is specified
-        Dialect = getDialect(dialect);
+        DialectClass = getDialect(dialect);
     } else if (sql && sql.dialect) {
         // dialect is not specified, use the dialect from the sql instance
-        Dialect = sql.dialect;
+        DialectClass = sql.dialect;
     } else {
         // dialect is not specified, use the default dialect
-        Dialect = getDialect(DEFAULT_DIALECT);
+        DialectClass = getDialect(DEFAULT_DIALECT);
     }
-    return Dialect;
+    return DialectClass;
 };
 
-const initializeDialect = (Dialect: any, query: any) => {
+const initializeDialect = <T extends typeof Dialect & NewableFunction>(DialectClass: T, query: any): Dialect => {
     const sql = query.sql || (query.table && query.table.sql);
     const config = sql ? sql.config : {};
-    return new Dialect(config);
+    return new DialectClass(config);
 };

@@ -56,7 +56,7 @@ import { INodeable, instanceofINodeable } from '../nodeable';
 import { Table } from '../table';
 
 // get the first element of an arguments if it is an array, else return arguments as an array
-const getArrayOrArgsAsArray = <T, U extends T[]>(args: Array<T | U>): T[] => {
+const getArrayOrArgsAsArray = <T>(args: Array<T | T[]>): T[] => {
     const first = args[0];
     if (Array.isArray(first)) {
         return first;
@@ -226,7 +226,8 @@ export class Query<T> extends Node {
         return this.add(having);
     }
 
-    public insert(object: Array<Partial<T>> | Partial<T> | Array<Column<any>> | Column<any>): this;
+    public insert(object: Array<Column<any>> | Column<any>): this;
+    public insert(object: Array<Partial<T>> | Partial<T>): this;
     public insert(...nodes: Array<Column<any>>): this;
     public insert(...nodes: Array<Array<Column<any>> | Column<any> | Array<Partial<T>> | Partial<T>>): this {
         let args = sliced(nodes) as Array<Column<any>>;
@@ -234,7 +235,7 @@ export class Query<T> extends Node {
 
         if (Array.isArray(object)) {
             for (const col of object) {
-                this.insert(col);
+                this.insert(col as any);
             }
             return this;
         } else if (!instanceofINodeable(object) && typeof object === 'object') {
@@ -257,7 +258,8 @@ export class Query<T> extends Node {
         }
     }
 
-    public replace(object: Array<Partial<T>> | Partial<T> | Array<Column<any>> | Column<any>): this;
+    public replace(object: Array<Column<any>> | Column<any>): this;
+    public replace(object: Array<Partial<T>> | Partial<T>): this;
     public replace(...nodes: Array<Column<any>>): this;
     public replace(...nodes: Array<Array<Column<any>> | Column<any> | Array<Partial<T>> | Partial<T>>): this {
         let args = sliced(nodes) as Array<Column<any>>;
@@ -265,7 +267,7 @@ export class Query<T> extends Node {
 
         if (Array.isArray(object)) {
             for (const col of object) {
-                this.replace(col);
+                this.replace(col as any);
             }
             return this;
         } else if (!instanceofINodeable(object) && typeof object === 'object') {
