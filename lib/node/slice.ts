@@ -1,6 +1,6 @@
 'use strict';
 
-import _ = require('lodash');
+import extend from 'lodash/extend';
 import { AliasNode, IAliasMixin, IValueExpressionMixin, Node, valueExpressionMixin } from '.';
 
 let valueExpressionMixed = false;
@@ -17,11 +17,11 @@ export class SliceNode extends Node {
         // mixin only once. ValueExpressionMixin has circular dependencies.
         if (!valueExpressionMixed) {
             valueExpressionMixed = true;
-            _.extend(SliceNode.prototype, valueExpressionMixin());
+            extend(SliceNode.prototype, valueExpressionMixin());
         }
     }
 }
 
-_.extend(SliceNode.prototype, AliasNode.AliasMixin);
+extend(SliceNode.prototype, AliasNode.AliasMixin);
 
 export interface SliceNode extends IValueExpressionMixin, IAliasMixin {}

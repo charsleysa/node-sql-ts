@@ -42,7 +42,7 @@ export interface ForeignKeyDefinition {
 export interface TableDefinition {
     name: string;
     schema?: string;
-    columns: Array<ColumnDefinition | string> | ColumnDefinitionObject;
+    columns: (ColumnDefinition | string)[] | ColumnDefinitionObject;
     isTemporary?: boolean;
     foreignKeys?: ForeignKeyDefinition | ForeignKeyDefinition[];
     sql?: Sql;

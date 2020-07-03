@@ -1,7 +1,7 @@
 'use strict';
 
-import assert = require('assert');
-import _ = require('lodash');
+import assert from 'assert';
+import isArray from 'lodash/isArray';
 
 import {
     AddColumnNode,
@@ -45,7 +45,7 @@ export class Sqlite extends Postgres {
             value = value.getTime();
         } else if ('boolean' === typeof value) {
             value = value ? 1 : 0;
-        } else if (_.isArray(value)) {
+        } else if (isArray(value)) {
             value = Postgres.prototype._getParameterValue.call(this, JSON.stringify(value));
         } else {
             value = Postgres.prototype._getParameterValue.call(this, value);

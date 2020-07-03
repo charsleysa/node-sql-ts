@@ -1,6 +1,6 @@
 'use strict';
 
-import _ = require('lodash');
+import defaults from 'lodash/defaults';
 import { Node } from '.';
 
 export class AliasNode extends Node {
@@ -11,7 +11,7 @@ export class AliasNode extends Node {
             const aliasNode = new AliasNode(this, alias);
 
             // defaults the properties of the aliased node
-            _.defaults(aliasNode, this);
+            defaults(aliasNode, this);
 
             return aliasNode;
         }

@@ -147,7 +147,7 @@ Harness.test({
 });
 
 Harness.test({
-    query: post.select(post.id).where(post.content.equals(new Buffer('test'))),
+    query: post.select(post.id).where(post.content.equals(Buffer.from('test'))),
     pg: {
         text: 'SELECT "post"."id" FROM "post" WHERE ("post"."content" = $1)',
         string: 'SELECT "post"."id" FROM "post" WHERE ("post"."content" = \'\\x74657374\')'
@@ -164,5 +164,5 @@ Harness.test({
         text: 'SELECT "post"."id" FROM "post" WHERE ("post"."content" = :1)',
         string: 'SELECT "post"."id" FROM "post" WHERE ("post"."content" = utl_raw.cast_to_varchar2(hextoraw(\'74657374\')))'
     },
-    params: [new Buffer('test')]
+    params: [Buffer.from('test')]
 });

@@ -2,7 +2,7 @@
 
 import { Table } from './table';
 
-const getPrimaryKeyColumn = (table: Table<any>) => {
+const getPrimaryKeyColumn = (table: Table<unknown>) => {
     for (const col of table.columns) {
         if (col.primaryKey) {
             return col;
@@ -11,7 +11,7 @@ const getPrimaryKeyColumn = (table: Table<any>) => {
     return;
 };
 
-const findReference = (left: Table<any>, right: Table<any>) => {
+const findReference = (left: Table<unknown>, right: Table<unknown>) => {
     // find reference
     for (const col of right.columns) {
         const references = col.references;
@@ -39,7 +39,7 @@ const findReference = (left: Table<any>, right: Table<any>) => {
 // auto-join two tables based on column properties
 // requires one column to have { references: {table: 'foreignTableName', column: 'foreignColumnName'}}
 // or to have { references: 'foreignTableName'} -- in which case the foreign table's primary key is assumed
-const leftJoin = (left: Table<any>, right: Table<any>) => {
+const leftJoin = (left: Table<unknown>, right: Table<unknown>) => {
     let ref = findReference(left, right);
     if (!ref) {
         ref = findReference(right, left);

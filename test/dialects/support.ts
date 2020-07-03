@@ -1,5 +1,5 @@
 'use strict';
-import assert = require('assert');
+import assert from 'assert';
 
 import { Mssql } from '../../lib/dialect/mssql';
 import { Mysql } from '../../lib/dialect/mysql';

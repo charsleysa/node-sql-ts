@@ -7,7 +7,7 @@ import { INodeable } from '../nodeable';
 export class ReplaceNode extends Node {
     public columns: ColumnNode[];
     public names: string[];
-    public valueSets: Array<{ [key: string]: ColumnNode }>;
+    public valueSets: { [key: string]: ColumnNode }[];
     constructor() {
         super('REPLACE');
         this.names = [];
@@ -15,7 +15,7 @@ export class ReplaceNode extends Node {
         this.valueSets = [];
     }
 
-    public add(nodes: Array<Column<any>> | Node | INodeable | string): this {
+    public add(nodes: Column<unknown>[] | Node | INodeable | string): this {
         if (!Array.isArray(nodes)) {
             throw new Error('Not an array of column instances');
         }

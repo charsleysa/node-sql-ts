@@ -3,7 +3,7 @@
 
 'use strict';
 
-import assert = require('assert');
+import assert from 'assert';
 
 import {
     AlterNode,

@@ -1,7 +1,9 @@
 'use strict';
 
-import assert = require('assert');
-import _ = require('lodash');
+import assert from 'assert';
+import isFunction from 'lodash/isFunction';
+import isNumber from 'lodash/isNumber';
+import map from 'lodash/map';
 
 import {
     AddColumnNode,
@@ -79,7 +81,7 @@ import { Dialect } from './dialect';
 export class Postgres extends Dialect {
     protected output: string[];
     protected params: string[];
-    protected queryNode?: Query<any>;
+    protected queryNode?: Query<unknown>;
     protected myClass: typeof Postgres = Postgres;
     protected arrayAggFunctionName: string = 'array_agg';
     protected aliasText: string = ' AS ';
@@ -133,7 +135,7 @@ export class Postgres extends Dialect {
                 if (this.myClass === Postgres) {
                     // naive check to see if this is an array of objects, which
                     // is handled differently than an array of primitives
-                    if (value.length && 'object' === typeof value[0] && !_.isFunction(value[0].toISOString) && !Array.isArray(value[0])) {
+                    if (value.length && 'object' === typeof value[0] && !isFunction(value[0].toISOString) && !Array.isArray(value[0])) {
                         value = `'${JSON.stringify(value)}'`;
                     } else {
                         // In a Postgres array, strings must be double-quoted
@@ -141,7 +143,7 @@ export class Postgres extends Dialect {
                         value = `'{${(value as any[]).join(',')}}'`;
                     }
                 } else {
-                    value = _.map(value, this._getParameterValue.bind(this));
+                    value = map(value, this._getParameterValue.bind(this));
                     value = `(${(value as any[]).join(', ')})`;
                 }
             } else if (value instanceof Date) {
@@ -161,10 +163,10 @@ export class Postgres extends Dialect {
         // value has been converted at this point
         return value;
     }
-    public _getParameterPlaceholder(index: string | number, value: any): string {
+    public _getParameterPlaceholder(index: string | number, value: unknown): string {
         return '$' + index;
     }
-    public getQuery(queryNode: Query<any> | Table<any>): { text: string, values: string[] } {
+    public getQuery(queryNode: Query<unknown> | Table<unknown>): { text: string, values: string[] } {
         // passed in a table, not a query
         if (queryNode instanceof Table) {
             queryNode = queryNode.select(queryNode.star());
@@ -186,7 +188,7 @@ export class Postgres extends Dialect {
         this.params = [];
         return query;
     }
-    public getString(queryNode: Query<any>) {
+    public getString(queryNode: Query<unknown>) {
         // switch off parameter placeholders
         const previousFlagStatus = this.disableParameterPlaceholders;
         this.disableParameterPlaceholders = true;
@@ -203,9 +205,9 @@ export class Postgres extends Dialect {
     public visit(node: Node): string[] {
         switch (node.type) {
             case 'QUERY':
-                return this.visitQuery(node as Query<any>);
+                return this.visitQuery(node as Query<unknown>);
             case 'SUBQUERY':
-                return this.visitSubquery(node as Query<any>);
+                return this.visitSubquery(node as Query<unknown>);
             case 'SELECT':
                 return this.visitSelect(node as SelectNode);
             case 'INSERT':
@@ -611,7 +613,7 @@ export class Postgres extends Dialect {
         const text = `(${this.visit(sliceNode.value)})[${this.visit(sliceNode.start)}:${this.visit(sliceNode.end)}]`;
         return [text];
     }
-    public visitQuery(queryNode: Query<any>): string[] {
+    public visitQuery(queryNode: Query<unknown>): string[] {
         if (this.queryNode) {
             return this.visitSubquery(queryNode, dontParenthesizeSubQuery(this.queryNode));
         }
@@ -694,7 +696,7 @@ export class Postgres extends Dialect {
         // implicit 'from'
         return this.output;
     }
-    public visitSubquery(queryNode: Query<any>, dontParenthesize?: boolean): string[] {
+    public visitSubquery(queryNode: Query<unknown>, dontParenthesize?: boolean): string[] {
         // create another query builder of the current class to build the subquery
         const subQuery = new this.myClass(this.config);
         // let the subquery modify this instance's params array
@@ -1161,7 +1163,7 @@ export class Postgres extends Dialect {
     public visitInterval(intervalNode: IntervalNode): string[] {
         let parameter = '';
         const add = (n: number, unit: string) => {
-            if (!_.isNumber(n)) {
+            if (!isNumber(n)) {
                 return;
             }
             if (parameter !== '') {
@@ -1227,7 +1229,7 @@ export class Postgres extends Dialect {
  * @param parentQuery
  * @returns {boolean}
  */
-function dontParenthesizeSubQuery(parentQuery: Query<any>) {
+function dontParenthesizeSubQuery(parentQuery: Query<unknown>) {
     if (!parentQuery) {
         return false;
     }

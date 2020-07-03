@@ -1,8 +1,8 @@
 'use strict';
 
-import assert = require('assert');
-import _ = require('lodash');
-import sliced = require('sliced');
+import assert from 'assert';
+import extend from 'lodash/extend';
+import sliced from 'sliced';
 
 import {
     AddColumnNode,
@@ -56,7 +56,7 @@ import { INodeable, instanceofINodeable } from '../nodeable';
 import { Table } from '../table';
 
 // get the first element of an arguments if it is an array, else return arguments as an array
-const getArrayOrArgsAsArray = <T>(args: Array<T | T[]>): T[] => {
+const getArrayOrArgsAsArray = <T>(args: (T | T[])[]): T[] => {
     const first = args[0];
     if (Array.isArray(first)) {
         return first;
@@ -128,7 +128,7 @@ export class Query<T> extends Node {
         return this;
     }
 
-    public star(): Column<any> {
+    public star(): Column<unknown> {
         assert(this.type === 'SUBQUERY', 'star() can only be used on a subQuery');
         return new Column({
             star: true,
@@ -138,8 +138,8 @@ export class Query<T> extends Node {
 
     public from(node: INodeable[] | INodeable | string): this;
     public from(...nodes: INodeable[]): this;
-    public from(...nodes: Array<string | INodeable | INodeable[]>): this {
-        const sourceNodes = Array.isArray(nodes[0]) ? (nodes[0] as Array<Table<any>>) : (nodes as Array<Table<any>>);
+    public from(...nodes: (string | INodeable | INodeable[])[]): this {
+        const sourceNodes = Array.isArray(nodes[0]) ? (nodes[0] as Table<unknown>[]) : (nodes as Table<unknown>[]);
 
         for (const node of sourceNodes) {
             this.add(new FromNode().add(node));
@@ -155,7 +155,7 @@ export class Query<T> extends Node {
 
     public where(object: Partial<T> | Node[] | Node | string): this;
     public where(...nodes: Node[]): this;
-    public where(...nodes: Array<Node[] | Node | Partial<T> | string>): this {
+    public where(...nodes: (Node[] | Node | Partial<T> | string)[]): this {
         if (nodes.length > 1) {
             // allow multiple where clause arguments
             const args = sliced(nodes as Node[]);
@@ -194,7 +194,7 @@ export class Query<T> extends Node {
 
     public order(node: INodeable[] | INodeable): this;
     public order(...nodes: INodeable[]): this;
-    public order(...nodes: Array<INodeable[] | INodeable>): this {
+    public order(...nodes: (INodeable[] | INodeable)[]): this {
         const args: INodeable[] = getArrayOrArgsAsArray(nodes);
         let orderBy;
         if (args.length === 0) {
@@ -212,7 +212,7 @@ export class Query<T> extends Node {
 
     public group(node: INodeable[] | INodeable): this;
     public group(...nodes: INodeable[]): this;
-    public group(...nodes: Array<INodeable[] | INodeable>): this {
+    public group(...nodes: (INodeable[] | INodeable)[]): this {
         const args: INodeable[] = getArrayOrArgsAsArray(nodes);
         const groupBy = new GroupByNode().addAll(args);
         return this.add(groupBy);
@@ -220,17 +220,17 @@ export class Query<T> extends Node {
 
     public having(node: INodeable[] | INodeable): this;
     public having(...nodes: INodeable[]): this;
-    public having(...nodes: Array<INodeable[] | INodeable>): this {
+    public having(...nodes: (INodeable[] | INodeable)[]): this {
         const args: INodeable[] = getArrayOrArgsAsArray(nodes);
         const having = new HavingNode().addAll(args);
         return this.add(having);
     }
 
-    public insert(object: Array<Column<any>> | Column<any>): this;
-    public insert(object: Array<Partial<T>> | Partial<T>): this;
-    public insert(...nodes: Array<Column<any>>): this;
-    public insert(...nodes: Array<Array<Column<any>> | Column<any> | Array<Partial<T>> | Partial<T>>): this {
-        let args = sliced(nodes) as Array<Column<any>>;
+    public insert(object: Column<unknown>[] | Column<unknown>): this;
+    public insert(object: Partial<T>[] | Partial<T>): this;
+    public insert(...nodes: Column<unknown>[]): this;
+    public insert(...nodes: (Column<unknown>[] | Column<unknown> | Partial<T>[] | Partial<T>)[]): this {
+        let args = sliced(nodes) as Column<unknown>[];
         const object = nodes[0];
 
         if (Array.isArray(object)) {
@@ -258,11 +258,11 @@ export class Query<T> extends Node {
         }
     }
 
-    public replace(object: Array<Column<any>> | Column<any>): this;
-    public replace(object: Array<Partial<T>> | Partial<T>): this;
-    public replace(...nodes: Array<Column<any>>): this;
-    public replace(...nodes: Array<Array<Column<any>> | Column<any> | Array<Partial<T>> | Partial<T>>): this {
-        let args = sliced(nodes) as Array<Column<any>>;
+    public replace(object: Column<unknown>[] | Column<unknown>): this;
+    public replace(object: Partial<T>[] | Partial<T>): this;
+    public replace(...nodes: Column<unknown>[]): this;
+    public replace(...nodes: (Column<unknown>[] | Column<unknown> | Partial<T>[] | Partial<T>)[]): this {
+        let args = sliced(nodes) as Column<unknown>[];
         const object = nodes[0];
 
         if (Array.isArray(object)) {
@@ -308,9 +308,9 @@ export class Query<T> extends Node {
         return this.add(param);
     }
 
-    public delete(table: Array<Table<any>> | Table<any> | Partial<T>): this;
+    public delete(table: Table<unknown>[] | Table<unknown> | Partial<T>): this;
     public delete(): this;
-    public delete(params?: Table<any> | Array<Table<any>> | Partial<T>): this {
+    public delete(params?: Table<unknown> | Table<unknown>[] | Partial<T>): this {
         let result;
         if (params) {
             if (params instanceof Table || Array.isArray(params)) {
@@ -430,7 +430,7 @@ export class Query<T> extends Node {
         return this.add(new AlterNode());
     }
 
-    public rename(newName: Column<any> | string): this {
+    public rename(newName: Column<unknown> | string): this {
         const renameClause = new RenameNode();
         if (typeof newName === 'string') {
             newName = new Column({
@@ -443,7 +443,7 @@ export class Query<T> extends Node {
         return this;
     }
 
-    public addColumn(column: Column<any> | string, dataType?: string): this {
+    public addColumn(column: Column<unknown> | string, dataType?: string): this {
         const addClause = new AddColumnNode();
         if (typeof column === 'string') {
             column = new Column({
@@ -459,7 +459,7 @@ export class Query<T> extends Node {
         return this;
     }
 
-    public dropColumn(column: Column<any> | string): this {
+    public dropColumn(column: Column<unknown> | string): this {
         const dropClause = new DropColumnNode();
         if (typeof column === 'string') {
             column = new Column({
@@ -472,7 +472,7 @@ export class Query<T> extends Node {
         return this;
     }
 
-    public renameColumn(oldColumn: Column<any> | string, newColumn: Column<any> | string): this {
+    public renameColumn(oldColumn: Column<unknown> | string, newColumn: Column<unknown> | string): this {
         const renameClause = new RenameColumnNode();
         if (typeof oldColumn === 'string') {
             oldColumn = new Column({
@@ -562,14 +562,14 @@ export class Query<T> extends Node {
 const valueExpressions = valueExpressionMixin();
 delete valueExpressions.or;
 delete valueExpressions.and;
-_.extend(Query.prototype, valueExpressions);
+extend(Query.prototype, valueExpressions);
 
 // Extend the query with the aliasMixin so that it's possible to write queries like
 //   const query=sql.select(a.select(a.count()).as("column1"))
 // which generates:
 //   SELECT (SELECT COUNT(*) FROM a) AS "column1"
-_.extend(Query.prototype, AliasNode.AliasMixin);
+extend(Query.prototype, AliasNode.AliasMixin);
 
 export interface Query<T> extends IValueExpressionMixinBase, IAliasMixin {}
 
-export type SubQuery<T> = Query<T> & { [key: string]: Column<any> };
+export type SubQuery<T> = Query<T> & { [key: string]: Column<unknown> };

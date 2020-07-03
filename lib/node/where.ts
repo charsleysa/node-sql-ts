@@ -4,7 +4,7 @@ import { BinaryNode, Node, TextNode } from '.';
 import { INodeable, instanceofINodeable } from '../nodeable';
 import { Table } from '../table';
 
-const normalizeNode = (table: Table<any>, node: Node[] | Node | INodeable | object | string): Node => {
+const normalizeNode = (table: Table<unknown>, node: Node[] | Node | INodeable | object | string): Node => {
     if (typeof node === 'string') {
         return new TextNode(`(${node})`);
     } else if (Array.isArray(node)) {
@@ -33,8 +33,8 @@ const normalizeNode = (table: Table<any>, node: Node[] | Node | INodeable | obje
 };
 
 export class WhereNode extends Node {
-    public table: Table<any>;
-    constructor(table: Table<any>) {
+    public table: Table<unknown>;
+    constructor(table: Table<unknown>) {
         super('WHERE');
         this.table = table;
     }

@@ -1,6 +1,7 @@
 'use strict';
-import _ = require('lodash');
-import sliced = require('sliced');
+
+import reduce from 'lodash/reduce';
+import sliced from 'sliced';
 import { FunctionCallNode } from './node';
 
 // create a function that creates a function call of the specific name, using the specified sql instance
@@ -15,7 +16,7 @@ const getFunctionCallCreator = (name: string) => {
 const getFunctions = (functionNames: string | string[]) => {
     if (typeof functionNames === 'string') { return getFunctionCallCreator(functionNames); }
 
-    const functions = _.reduce(
+    const functions = reduce(
         functionNames,
         (reducer, name) => {
             (reducer as any)[name] = getFunctionCallCreator(name);

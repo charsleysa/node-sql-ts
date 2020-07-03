@@ -581,7 +581,7 @@ Harness.test({
 
 // Binary inserts
 Harness.test({
-    query: post.insert(post.content.value(new Buffer('test')), post.userId.value(2)),
+    query: post.insert(post.content.value(Buffer.from('test')), post.userId.value(2)),
     pg: {
         text: 'INSERT INTO "post" ("content", "userId") VALUES ($1, $2)',
         string: 'INSERT INTO "post" ("content", "userId") VALUES (\'\\x74657374\', 2)'
@@ -602,12 +602,12 @@ Harness.test({
         text: 'INSERT INTO "post" ("content", "userId") VALUES (:1, :2)',
         string: 'INSERT INTO "post" ("content", "userId") VALUES (utl_raw.cast_to_varchar2(hextoraw(\'74657374\')), 2)'
     },
-    params: [new Buffer('test'), 2]
+    params: [Buffer.from('test'), 2]
 });
 
 Harness.test({
     query: post.insert({
-        content: new Buffer('test'),
+        content: Buffer.from('test'),
         userId: 2
     }),
     pg: {
@@ -630,16 +630,16 @@ Harness.test({
         text: 'INSERT INTO "post" ("content", "userId") VALUES (:1, :2)',
         string: 'INSERT INTO "post" ("content", "userId") VALUES (utl_raw.cast_to_varchar2(hextoraw(\'74657374\')), 2)'
     },
-    params: [new Buffer('test'), 2]
+    params: [Buffer.from('test'), 2]
 });
 
 Harness.test({
     query: post.insert([
         {
-            content: new Buffer('whoah')
+            content: Buffer.from('whoah')
         },
         {
-            content: new Buffer('hey')
+            content: Buffer.from('hey')
         }
     ]),
     pg: {
@@ -663,7 +663,7 @@ Harness.test({
         string:
             'INSERT INTO "post" ("content") VALUES (utl_raw.cast_to_varchar2(hextoraw(\'77686f6168\'))), (utl_raw.cast_to_varchar2(hextoraw(\'686579\')))'
     },
-    params: [new Buffer('whoah'), new Buffer('hey')]
+    params: [Buffer.from('whoah'), Buffer.from('hey')]
 });
 
 Harness.test({

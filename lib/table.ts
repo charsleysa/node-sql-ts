@@ -1,7 +1,7 @@
 'use strict';
 
-import lodash = require('lodash');
-
+import map from 'lodash/map';
+import fromPairs from 'lodash/fromPairs';
 import { Column } from './column';
 import { ColumnDefinition, TableDefinition } from './configTypes';
 import { leftJoin } from './joiner';
@@ -48,7 +48,7 @@ export class Table<T> implements INodeable {
     public columnWhiteList: boolean;
     public isTemporary: boolean;
     public snakeToCamel: boolean;
-    public columns: Array<Column<T[keyof T]>>;
+    public columns: Column<T[keyof T]>[];
     public foreignKeys: ForeignKeyNode[];
     public table: this;
     public sql!: Sql;
@@ -87,18 +87,16 @@ export class Table<T> implements INodeable {
             ...(config || {})
         } as any);
     }
-    public createColumn(col: string | ColumnDefinition | Column<any>): Column<any> {
+    public createColumn(col: string | ColumnDefinition | Column<unknown>): Column<unknown> {
         if (!(col instanceof Column)) {
             if (typeof col === 'string') {
                 // tslint:disable-next-line:no-object-literal-type-assertion
                 col = { name: col } as ColumnDefinition;
             }
-            const column = new Column<any>({ ...col, table: this });
+            const column = new Column<unknown>({ ...col, table: this });
             // Load subfields from array into an object of form name: Column
             if (Array.isArray(col.subfields)) {
-                column.subfields = lodash
-                    .chain(col.subfields)
-                    .map((subfield) => {
+                column.subfields = fromPairs(map(col.subfields, (subfield) => {
                         return [
                             subfield,
                             new Column({
@@ -107,15 +105,13 @@ export class Table<T> implements INodeable {
                                 table: this
                             })
                         ];
-                    })
-                    .fromPairs()
-                    .value();
+                    }));
             }
             return column;
         }
         return col;
     }
-    public addColumn(col: string | ColumnDefinition | Column<any>, options?: any) {
+    public addColumn(col: string | ColumnDefinition | Column<unknown>, options?: any) {
         const column = this.createColumn(col);
         options = { noisy: true, ...options };
         if (this.hasColumn(column)) {
@@ -140,7 +136,7 @@ export class Table<T> implements INodeable {
         (this as any)[property] = (this as any)[property] || column;
         return this;
     }
-    public hasColumn(col: Column<any> | string): boolean {
+    public hasColumn(col: Column<unknown> | string): boolean {
         const columnName = col instanceof Column ? col.name : col;
         return this.columns.some((column) => column.property === columnName || column.name === columnName);
     }
@@ -170,9 +166,9 @@ export class Table<T> implements INodeable {
         }
         return this.tableName;
     }
-    public star(): Column<any>;
+    public star(): Column<unknown>;
     public star(options: { prefix: string }): ColumnNode[];
-    public star(options?: any): Column<any> | ColumnNode[] {
+    public star(options?: any): Column<unknown> | ColumnNode[] {
         options = options || {};
         if ('prefix' in options) {
             return this.columns.map((column) => column.as(options.prefix + column.name));
@@ -184,7 +180,7 @@ export class Table<T> implements INodeable {
     }
     public count(alias?: string): ColumnNode {
         const name = this.alias || this.tableName;
-        const col: Column<any> = new Column({ table: this, star: true });
+        const col: Column<unknown> = new Column({ table: this, star: true });
         // ColumnNode
         return col.count(alias || name + '_count');
     }
@@ -207,12 +203,12 @@ export class Table<T> implements INodeable {
         };
         return query as SubQuery<T>;
     }
-    public insert(object: Array<Column<any>> | Column<any>): Query<T>;
-    public insert(object: Array<PartialNodeable<T>> | PartialNodeable<T>): Query<T>;
-    public insert(...nodes: Array<Column<any>>): Query<T>;
-    public insert(...nodes: Array<Array<Column<any>> | Column<any> | Array<PartialNodeable<T>> | PartialNodeable<T>>): Query<T> {
+    public insert(object: Column<unknown>[] | Column<unknown>): Query<T>;
+    public insert(object: PartialNodeable<T>[] | PartialNodeable<T>): Query<T>;
+    public insert(...nodes: Column<unknown>[]): Query<T>;
+    public insert(...nodes: (Column<unknown>[] | Column<unknown> | PartialNodeable<T>[] | PartialNodeable<T>)[]): Query<T> {
         const query = new Query<T>(this);
-        if (!nodes[0] || (Array.isArray(nodes[0]) && (nodes[0] as Array<Column<any>> | Array<PartialNodeable<T>>).length === 0)) {
+        if (!nodes[0] || (Array.isArray(nodes[0]) && (nodes[0] as Column<unknown>[] | PartialNodeable<T>[]).length === 0)) {
             query.select(this.star());
             query.where('1=2');
         } else {
@@ -220,12 +216,12 @@ export class Table<T> implements INodeable {
         }
         return query;
     }
-    public replace(object: Array<Column<any>> | Column<any>): Query<T>;
-    public replace(object: Array<PartialNodeable<T>> | PartialNodeable<T>): Query<T>;
-    public replace(...nodes: Array<Column<any>>): Query<T>;
-    public replace(...nodes: Array<Array<Column<any>> | Column<any> | Array<PartialNodeable<T>> | PartialNodeable<T>>): Query<T> {
+    public replace(object: Column<unknown>[] | Column<unknown>): Query<T>;
+    public replace(object: PartialNodeable<T>[] | PartialNodeable<T>): Query<T>;
+    public replace(...nodes: Column<unknown>[]): Query<T>;
+    public replace(...nodes: (Column<unknown>[] | Column<unknown> | PartialNodeable<T>[] | PartialNodeable<T>)[]): Query<T> {
         const query = new Query<T>(this);
-        if (!nodes[0] || (Array.isArray(nodes[0]) && (nodes[0] as Array<Column<any>> | Array<PartialNodeable<T>>).length === 0)) {
+        if (!nodes[0] || (Array.isArray(nodes[0]) && (nodes[0] as Column<unknown>[] | PartialNodeable<T>[]).length === 0)) {
             query.select(this.star());
             query.where('1=2');
         } else {
@@ -243,7 +239,7 @@ export class Table<T> implements INodeable {
         return new JoinNode('LEFT', this.toNode(), other.toNode());
     }
     // auto-join tables based on column intropsection
-    public joinTo(other: Table<any>): JoinNode {
+    public joinTo(other: Table<unknown>): JoinNode {
         return leftJoin(this, other);
     }
     public as(alias: string): TableWithColumns<T> {
@@ -265,7 +261,7 @@ export class Table<T> implements INodeable {
 const queryMethods = ['alter', 'create', 'delete', 'drop', 'from', 'limit', 'offset', 'or', 'order', 'truncate', 'update', 'where'];
 
 queryMethods.forEach((method) => {
-    (Table.prototype as any)[method] = function(this: Table<any>, ...args: any[]) {
+    (Table.prototype as any)[method] = function(this: Table<unknown>, ...args: any[]) {
         const query = new Query(this);
         (query as any)[method].apply(query, args);
         return query;
@@ -277,13 +273,13 @@ type PartialNodeable<T> = { [P in keyof T]?: T[P] | INodeable | Buffer };
 export interface Table<T> {
     alter(): Query<T>;
     create(): Query<T>;
-    delete(table: Array<Table<any>> | Table<any> | Partial<T>): Query<T>;
+    delete(table: Table<unknown>[] | Table<unknown> | Table<T> | Partial<T>): Query<T>;
     delete(): Query<T>;
     drop(): Query<T>;
-    from(table: Array<Table<any>> | Table<any> | JoinNode): Query<T>;
-    from(...tables: Array<Table<any>>): Query<T>;
-    limit(count: any): Query<T>;
-    offset(count: any): Query<T>;
+    from(table: Table<unknown>[] | Table<unknown> | Table<T> | JoinNode): Query<T>;
+    from(...tables: Table<unknown>[]): Query<T>;
+    limit(count: unknown): Query<T>;
+    offset(count: unknown): Query<T>;
     or(object: Partial<T> | Node | string): Query<T>;
     order(node: INodeable[] | INodeable): Query<T>;
     order(...nodes: INodeable[]): Query<T>;
@@ -296,13 +292,13 @@ export interface Table<T> {
 interface IndexQuery {
     create(indexName?: string): IndexCreationQuery;
     drop(indexName: string): Node;
-    drop(...columns: Array<Column<any>>): Node;
+    drop(...columns: Column<unknown>[]): Node;
 }
 
 interface IndexCreationQuery extends Node {
     unique(): IndexCreationQuery;
     using(name: string): IndexCreationQuery;
-    on(...columns: Array<Column<any> | OrderByValueNode>): IndexCreationQuery;
+    on(...columns: (Column<unknown> | OrderByValueNode)[]): IndexCreationQuery;
     withParser(parserName: string): IndexCreationQuery;
     fulltext(): IndexCreationQuery;
     spatial(): IndexCreationQuery;

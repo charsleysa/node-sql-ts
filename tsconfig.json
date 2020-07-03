@@ -1,12 +1,11 @@
 {
     "compilerOptions": {
         "target": "es2016",
-        "module": "commonjs",
+        "module": "es2020",
         "moduleResolution": "node",
-        "outDir": "./dist/",
+        "outDir": "./dist/esm",
         "resolveJsonModule": true,
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": false,
         "noEmitHelpers": true,
         "importHelpers": true,
         "pretty": true,

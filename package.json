@@ -12,31 +12,41 @@
         "type": "git",
         "url": "git://github.com/charsleysa/node-sql-ts.git"
     },
-    "main": "dist/",
-    "types": "dist/index.d.ts",
+    "main": "dist/cjs/",
+    "module": "dist/esm/",
+    "types": "dist/esm/index.d.ts",
     "scripts": {
         "pretest": "tslint --project .",
-        "test": "node_modules/.bin/mocha --opts ./test/mocha.opts",
+        "test": "TS_NODE_PROJECT='test/tsconfig.json' mocha",
         "lint": "tslint --project .",
-        "release:major": "npm run test && tsc && npm version major -m \"Bump version\" && git push origin master --tags && npm publish",
-        "release:minor": "npm run test && tsc && npm version minor -m \"Bump version\" && git push origin master --tags && npm publish",
-        "release:patch": "npm run test && tsc && npm version patch -m \"Bump version\" && git push origin master --tags && npm publish"
+        "tsc": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
+        "release:major": "npm run test && npm run tsc && npm version major -m \"Bump version\" && git push origin master --tags && npm publish",
+        "release:minor": "npm run test && npm run tsc && npm version minor -m \"Bump version\" && git push origin master --tags && npm publish",
+        "release:patch": "npm run test && npm run tsc && npm version patch -m \"Bump version\" && git push origin master --tags && npm publish"
     },
     "engines": {
-        "node": "*"
+        "node": "^12.0.0 || >=14.0.0"
     },
     "dependencies": {
         "sliced": "~1.0.x",
-        "lodash": "~4.17.x"
+        "lodash": "~4.17.15",
+        "tslib": "~2.0.0"
     },
     "devDependencies": {
-        "@types/lodash": "^4.14.123",
-        "@types/mocha": "^5.2.6",
+        "@types/lodash": "^4.14.157",
+        "@types/mocha": "^7.0.2",
         "@types/node": "^12.0.0",
-        "mocha": "*",
-        "typescript": "^3.4.5",
-        "ts-node": "^8.1.0",
-        "tslint": "^5.16.0",
-        "tslint-config-prettier": "^1.18.0"
+        "mocha": "^8.0.1",
+        "ts-node": "^8.10.2",
+        "tslint": "^6.1.2",
+        "tslint-config-prettier": "^1.18.0",
+        "typescript": "^3.9.6"
+    },
+    "mocha": {
+        "reporter": "dot",
+        "ui": "tdd",
+        "require": "ts-node/register",
+        "watch-extensions": "tsx,ts",
+        "spec": "test/*.ts"
     }
 }

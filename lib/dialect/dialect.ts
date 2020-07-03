@@ -6,6 +6,6 @@ export abstract class Dialect {
     constructor(config: any) {
         this.config = config;
     }
-    public abstract getQuery(queryNode: Query<any> | Table<any>): { text: string, values: string[] };
-    public abstract getString(queryNode: Query<any>): string;
+    public abstract getQuery(queryNode: Query<unknown> | Table<unknown>): { text: string, values: string[] };
+    public abstract getString(queryNode: Query<unknown>): string;
 }

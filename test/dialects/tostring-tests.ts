@@ -1,6 +1,6 @@
 'use strict';
 
-import assert = require('assert');
+import assert from 'assert';
 import * as Harness from './support';
 const post = Harness.definePostTable();
 

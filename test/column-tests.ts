@@ -5,30 +5,30 @@ import { Sql } from '../lib';
 
 const sql = new Sql();
 
-describe('column', function() {
+suite('column', function() {
     const table = sql.define<{ id: number; created: boolean; alias: string }>({
         name: 'user',
         columns: ['id', 'created', 'alias']
     });
 
-    it('can be accessed by property and array', function() {
+    test('can be accessed by property and array', function() {
         equal(table.created, table.columns[1], 'should be able to access created both by array and property');
     });
 
-    describe('toQuery()', function() {
-        it('works', function() {
+    suite('toQuery()', function() {
+        test('works', function() {
             equal(table.id.toQuery().text, '"user"."id"');
         });
 
-        it('works with a column name of "alias"', function() {
+        test('works with a column name of "alias"', function() {
             equal(table.alias.toQuery().text, '"user"."alias"');
         });
 
-        it('respects AS rename', function() {
+        test('respects AS rename', function() {
             equal(table.id.as('userId').toQuery().text, '"user"."id" AS "userId"');
         });
 
-        it('respects count and distinct', function() {
+        test('respects count and distinct', function() {
             equal(
                 table.id
                     .count()
@@ -39,32 +39,32 @@ describe('column', function() {
             );
         });
 
-        describe('in subquery with min', function() {
+        suite('in subquery with min', function() {
             const subquery = table.subQuery('subTable').select(table.id.min().as('subId'));
             const col = subquery.subId.toQuery().text;
             equal(col, '"subTable"."subId"');
         });
 
-        describe('property', function() {
+        suite('property', function() {
             const table = sql.define<{ propertyName: string }>({
                 name: 'roundtrip',
                 columns: {
                     column_name: { property: 'propertyName' }
                 }
             });
-            it('used as alias when !== column name', function() {
+            test('used as alias when !== column name', function() {
                 equal(table.propertyName.toQuery().text, '"roundtrip"."column_name" AS "propertyName"');
             });
-            it('uses explicit alias when !== column name', function() {
+            test('uses explicit alias when !== column name', function() {
                 equal(table.propertyName.as('alias').toQuery().text, '"roundtrip"."column_name" AS "alias"');
             });
-            it('maps to column name in insert', function() {
+            test('maps to column name in insert', function() {
                 equal(table.insert({ propertyName: 'propVal' }).toQuery().text, 'INSERT INTO "roundtrip" ("column_name") VALUES ($1)');
             });
-            it('maps to column name in update', function() {
+            test('maps to column name in update', function() {
                 equal(table.update({ propertyName: 'propVal' }).toQuery().text, 'UPDATE "roundtrip" SET "column_name" = $1');
             });
-            it('explicitly selected by *', function() {
+            test('explicitly selected by *', function() {
                 equal(
                     table
                         .select(table.star())
@@ -75,7 +75,7 @@ describe('column', function() {
             });
         });
 
-        describe('autoGenerate', function() {
+        suite('autoGenerate', function() {
             const table = sql.define({
                 name: 'ag',
                 columns: {
@@ -83,44 +83,44 @@ describe('column', function() {
                     name: {}
                 }
             });
-            it('does not include auto generated columns in insert', function() {
+            test('does not include auto generated columns in insert', function() {
                 equal(table.insert({ id: 0, name: 'name' }).toQuery().text, 'INSERT INTO "ag" ("name") VALUES ($1)');
             });
-            it('does not include auto generated columns in update', function() {
+            test('does not include auto generated columns in update', function() {
                 equal(table.update({ id: 0, name: 'name' }).toQuery().text, 'UPDATE "ag" SET "name" = $1');
             });
         });
 
-        describe('white listed', function() {
+        suite('white listed', function() {
             const table = sql.define({
                 name: 'wl',
                 columnWhiteList: true,
                 columns: ['id', 'name']
             });
-            it('excludes insert properties that are not a column', function() {
+            test('excludes insert properties that are not a column', function() {
                 equal(
                     table.insert({ id: 0, _private: '_private', name: 'name' }).toQuery().text,
                     'INSERT INTO "wl" ("id", "name") VALUES ($1, $2)'
                 );
             });
-            it('excludes update properties that are not a column', function() {
+            test('excludes update properties that are not a column', function() {
                 // for testing purposes ignore the compile-time error
                 //@ts-ignore
                 equal(table.update({ id: 0, _private: '_private', name: 'name' }).toQuery().text, 'UPDATE "wl" SET "id" = $1, "name" = $2');
             });
         });
 
-        describe('not white listed', function() {
+        suite('not white listed', function() {
             const table = sql.define({
                 name: 'wl',
                 columns: ['id', 'name']
             });
-            it('throws for insert properties that are not a column', function() {
+            test('throws for insert properties that are not a column', function() {
                 throws(function() {
                     table.insert({ id: 0, _private: '_private', name: 'name' });
                 }, Error);
             });
-            it('throws for update properties that are not a column', function() {
+            test('throws for update properties that are not a column', function() {
                 throws(function() {
                     // for testing purposes ignore the compile-time error
                     //@ts-ignore
@@ -129,7 +129,7 @@ describe('column', function() {
             });
         });
 
-        describe('snake to camel', function() {
+        suite('snake to camel', function() {
             const table = sql.define<{ makeMeCamel: number; not2Cam: string }>({
                 name: 'sc',
                 snakeToCamel: true,
@@ -138,13 +138,13 @@ describe('column', function() {
                     not_to_camel: { property: 'not2Cam' }
                 }
             });
-            it('for snake column names with no explicit property name', function() {
+            test('for snake column names with no explicit property name', function() {
                 equal(table.makeMeCamel.toQuery().text, '"sc"."make_me_camel" AS "makeMeCamel"');
             });
-            it('but not when with explicit property name', function() {
+            test('but not when with explicit property name', function() {
                 equal(table.not2Cam.toQuery().text, '"sc"."not_to_camel" AS "not2Cam"');
             });
-            it('does not use property alias within CASE ... END', function() {
+            test('does not use property alias within CASE ... END', function() {
                 equal(
                     table.makeMeCamel
                         .case([table.makeMeCamel.equals(0)], [table.makeMeCamel])
@@ -153,7 +153,7 @@ describe('column', function() {
                     '(CASE WHEN ("sc"."make_me_camel" = $1) THEN "sc"."make_me_camel" END) AS "rename"'
                 );
             });
-            it('respects AS rename in RETURNING clause', function() {
+            test('respects AS rename in RETURNING clause', function() {
                 equal(
                     table
                         .update({ makeMeCamel: 0 })

@@ -1,6 +1,6 @@
 'use strict';
 
-import assert = require('assert');
+import assert from 'assert';
 import { Query, TextNode } from '.';
 import { DEFAULT_DIALECT, getDialect } from '../dialect';
 import { Dialect } from '../dialect/dialect';
@@ -38,7 +38,7 @@ export abstract class Node implements INodeable {
     }
     public toQuery(dialect?: string) {
         const DialectClass = determineDialect(this, dialect);
-        return initializeDialect(DialectClass, this).getQuery(this as unknown as Query<any>);
+        return initializeDialect(DialectClass, this).getQuery(this as unknown as Query<unknown>);
     }
     public toNamedQuery(name: string, dialect?: string) {
         if (!name || typeof name !== 'string' || name === '') {
@@ -49,9 +49,9 @@ export abstract class Node implements INodeable {
     }
     public toString(dialect?: string) {
         const DialectClass = determineDialect(this, dialect);
-        return initializeDialect(DialectClass, this).getString(this as unknown as Query<any>);
+        return initializeDialect(DialectClass, this).getString(this as unknown as Query<unknown>);
     }
-    public addAll(nodes: Array<Node | INodeable | string>) {
+    public addAll(nodes: (Node | INodeable | string)[]) {
         for (let i = 0, len = nodes.length; i < len; i++) {
             this.add(nodes[i]);
         }

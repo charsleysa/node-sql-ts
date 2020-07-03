@@ -520,7 +520,7 @@ Harness.test({
 
 // Binary replaces
 Harness.test({
-    query: post.replace(post.content.value(new Buffer('test')), post.userId.value(2)),
+    query: post.replace(post.content.value(Buffer.from('test')), post.userId.value(2)),
     pg: {
         throws: true
     },
@@ -538,12 +538,12 @@ Harness.test({
     oracle: {
         throws: true
     },
-    params: [new Buffer('test'), 2]
+    params: [Buffer.from('test'), 2]
 });
 
 Harness.test({
     query: post.replace({
-        content: new Buffer('test'),
+        content: Buffer.from('test'),
         userId: 2
     }),
     pg: {
@@ -563,16 +563,16 @@ Harness.test({
     oracle: {
         throws: true
     },
-    params: [new Buffer('test'), 2]
+    params: [Buffer.from('test'), 2]
 });
 
 Harness.test({
     query: post.replace([
         {
-            content: new Buffer('whoah')
+            content: Buffer.from('whoah')
         },
         {
-            content: new Buffer('hey')
+            content: Buffer.from('hey')
         }
     ]),
     pg: {
@@ -592,7 +592,7 @@ Harness.test({
     oracle: {
         throws: true
     },
-    params: [new Buffer('whoah'), new Buffer('hey')]
+    params: [Buffer.from('whoah'), Buffer.from('hey')]
 });
 
 Harness.test({

@@ -183,7 +183,7 @@ Harness.test({
 Harness.test({
     query: post.update({
         //@ts-ignore should investigate whether this should be valid for typings
-        content: new Buffer('test')
+        content: Buffer.from('test')
     }),
     pg: {
         text: 'UPDATE "post" SET "content" = $1',
@@ -201,7 +201,7 @@ Harness.test({
         text: 'UPDATE "post" SET "content" = :1',
         string: 'UPDATE "post" SET "content" = utl_raw.cast_to_varchar2(hextoraw(\'74657374\'))'
     },
-    params: [new Buffer('test')]
+    params: [Buffer.from('test')]
 });
 
 // Boolean updates

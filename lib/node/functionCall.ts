@@ -1,6 +1,6 @@
 'use strict';
 
-import _ = require('lodash');
+import extend from 'lodash/extend';
 import { AliasNode, IAliasMixin, IValueExpressionMixin, Node, ParameterNode, valueExpressionMixin } from '.';
 
 export class FunctionCallNode extends Node {
@@ -13,8 +13,8 @@ export class FunctionCallNode extends Node {
 }
 
 // mix in value expression
-_.extend(FunctionCallNode.prototype, valueExpressionMixin());
+extend(FunctionCallNode.prototype, valueExpressionMixin());
 
-_.extend(FunctionCallNode.prototype, AliasNode.AliasMixin);
+extend(FunctionCallNode.prototype, AliasNode.AliasMixin);
 
 export interface FunctionCallNode extends IValueExpressionMixin, IAliasMixin {}

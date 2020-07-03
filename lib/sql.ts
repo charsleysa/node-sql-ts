@@ -1,7 +1,7 @@
 'use strict';
 
-import _ = require('lodash');
-import sliced = require('sliced');
+import defaults from 'lodash/defaults';
+import sliced from 'sliced';
 import { Column } from './column';
 import { SQLDialects, TableDefinition } from './configTypes';
 import { DEFAULT_DIALECT, getDialect } from './dialect';
@@ -30,7 +30,7 @@ class Sql {
     }
     // Define a table
     public define<T>(def: TableDefinition): TableWithColumns<T> {
-        def = _.defaults(def || {}, {
+        def = defaults(def || {}, {
             sql: this
         });
         return Table.define(def);

@@ -1,6 +1,6 @@
 'use strict';
 
-import assert = require('assert');
+import assert from 'assert';
 import { valueExpressionMixin, Node } from '../lib/node/';
 
 suite('value-expression', function() {

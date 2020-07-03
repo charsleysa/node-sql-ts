@@ -1,21 +1,21 @@
 'use strict';
 
-import sliced = require('sliced');
+import sliced from 'sliced';
 import { Node } from '.';
 import { Column } from '../column';
 import { Table } from '../table';
 
 export class CreateIndexNode extends Node {
-    public table: Table<any>;
+    public table: Table<unknown>;
     public options: {
         indexName: string;
-        columns: Array<Column<any>>;
+        columns: Column<unknown>[];
         type?: string;
         algorithm?: string;
         parser?: string;
     };
 
-    constructor(table: Table<any>, indexName: string) {
+    constructor(table: Table<unknown>, indexName: string) {
         super('CREATE INDEX');
 
         this.table = table;
@@ -42,7 +42,7 @@ export class CreateIndexNode extends Node {
         return this;
     }
 
-    public on(...columns: Array<Column<any>>) {
+    public on(...columns: Column<unknown>[]) {
         const args = sliced(columns);
         this.options.columns = this.options.columns.concat(args);
         return this;

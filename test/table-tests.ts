@@ -1,5 +1,5 @@
 'use strict';
-import assert = require('assert');
+import assert from 'assert';
 import { equal, ok, throws, doesNotThrow, notEqual } from 'assert';
 
 import { Table } from '../lib/table';

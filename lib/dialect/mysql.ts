@@ -1,7 +1,7 @@
 'use strict';
 
-import assert = require('assert');
-import _ = require('lodash');
+import assert from 'assert';
+import isNumber from 'lodash/isNumber';
 
 import {
     BinaryNode,
@@ -179,20 +179,20 @@ export class Mysql extends Postgres {
     }
     public visitInterval(intervalNode: IntervalNode): string[] {
         let parameter;
-        if (_.isNumber(intervalNode.years)) {
-            parameter = _.isNumber(intervalNode.months)
+        if (isNumber(intervalNode.years)) {
+            parameter = isNumber(intervalNode.months)
                 ? `'${intervalNode.years}-${intervalNode.months}' YEAR_MONTH`
                 : `${intervalNode.years} YEAR`;
-        } else if (_.isNumber(intervalNode.months)) {
+        } else if (isNumber(intervalNode.months)) {
             parameter = `${intervalNode.months} MONTH`;
-        } else if (_.isNumber(intervalNode.days)) {
-            parameter = `'${intervalNode.days} ${_.isNumber(intervalNode.hours) ? intervalNode.hours : 0}:${
-                _.isNumber(intervalNode.minutes) ? intervalNode.minutes : 0
-            }:${_.isNumber(intervalNode.seconds) ? intervalNode.seconds : 0}' DAY_SECOND`;
+        } else if (isNumber(intervalNode.days)) {
+            parameter = `'${intervalNode.days} ${isNumber(intervalNode.hours) ? intervalNode.hours : 0}:${
+                isNumber(intervalNode.minutes) ? intervalNode.minutes : 0
+            }:${isNumber(intervalNode.seconds) ? intervalNode.seconds : 0}' DAY_SECOND`;
         } else {
-            parameter = `'${_.isNumber(intervalNode.hours) ? intervalNode.hours : 0}:${
-                _.isNumber(intervalNode.minutes) ? intervalNode.minutes : 0
-            }:${_.isNumber(intervalNode.seconds) ? intervalNode.seconds : 0}' HOUR_SECOND`;
+            parameter = `'${isNumber(intervalNode.hours) ? intervalNode.hours : 0}:${
+                isNumber(intervalNode.minutes) ? intervalNode.minutes : 0
+            }:${isNumber(intervalNode.seconds) ? intervalNode.seconds : 0}' HOUR_SECOND`;
         }
         return [`INTERVAL ${parameter}`];
     }

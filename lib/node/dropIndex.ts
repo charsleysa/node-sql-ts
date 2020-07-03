@@ -5,10 +5,10 @@ import { Column } from '../column';
 import { Table } from '../table';
 
 export class DropIndexNode extends Node {
-    public table: Table<any>;
+    public table: Table<unknown>;
     public options: { indexName: string };
 
-    constructor(table: Table<any>, indexName: string | string[] | Array<Column<any>>) {
+    constructor(table: Table<unknown>, indexName: string | string[] | Column<unknown>[]) {
         super('DROP INDEX');
 
         if (!indexName) {
@@ -16,7 +16,7 @@ export class DropIndexNode extends Node {
         } else if (Array.isArray(indexName) && typeof indexName[0] === 'string') {
             indexName = indexName[0] as string;
         } else if (Array.isArray(indexName)) {
-            const columns = (indexName as Array<Column<any>>).map((col) => col.name).sort();
+            const columns = (indexName as Column<unknown>[]).map((col) => col.name).sort();
             indexName = [table.getName()].concat(columns).join('_');
         }
 
