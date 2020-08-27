@@ -227,7 +227,7 @@ Harness.test({
     params: []
 });
 
-var limitUsers = user
+const limitUsers = user
     .subQuery('limit-users')
     .select(user.id, user.name)
     .from(user)

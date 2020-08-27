@@ -1,48 +1,55 @@
 'use strict';
 
-import { equal, throws } from 'assert';
+import { strictEqual, throws } from 'assert';
 import { Sql } from '../lib';
 
 const sql = new Sql();
 
 suite('column', function() {
-    const table = sql.define<{ id: number; created: boolean; alias: string }>({
-        name: 'user',
-        columns: ['id', 'created', 'alias']
-    });
-
     test('can be accessed by property and array', function() {
-        equal(table.created, table.columns[1], 'should be able to access created both by array and property');
+        const table = sql.define<{ id: number; created: boolean; alias: string }>({
+            name: 'user',
+            columns: ['id', 'created', 'alias']
+        });
+
+        strictEqual(table.created, table.columns[1], 'should be able to access created both by array and property');
     });
 
     suite('toQuery()', function() {
-        test('works', function() {
-            equal(table.id.toQuery().text, '"user"."id"');
-        });
+        suite('basics', function() {
+            const table = sql.define<{ id: number; created: boolean; alias: string }>({
+                name: 'user',
+                columns: ['id', 'created', 'alias']
+            });
+    
+            test('works', function() {
+                strictEqual(table.id.toQuery().text, '"user"."id"');
+            });
+    
+            test('works with a column name of "alias"', function() {
+                strictEqual(table.alias.toQuery().text, '"user"."alias"');
+            });
+    
+            test('respects AS rename', function() {
+                strictEqual(table.id.as('userId').toQuery().text, '"user"."id" AS "userId"');
+            });
+    
+            test('respects count and distinct', function() {
+                strictEqual(
+                    table.id
+                        .count()
+                        .distinct()
+                        .as('userIdCount')
+                        .toQuery().text,
+                    'COUNT(DISTINCT("user"."id")) AS "userIdCount"'
+                );
+            });
 
-        test('works with a column name of "alias"', function() {
-            equal(table.alias.toQuery().text, '"user"."alias"');
-        });
-
-        test('respects AS rename', function() {
-            equal(table.id.as('userId').toQuery().text, '"user"."id" AS "userId"');
-        });
-
-        test('respects count and distinct', function() {
-            equal(
-                table.id
-                    .count()
-                    .distinct()
-                    .as('userIdCount')
-                    .toQuery().text,
-                'COUNT(DISTINCT("user"."id")) AS "userIdCount"'
-            );
-        });
-
-        suite('in subquery with min', function() {
-            const subquery = table.subQuery('subTable').select(table.id.min().as('subId'));
-            const col = subquery.subId.toQuery().text;
-            equal(col, '"subTable"."subId"');
+            test('in subquery with min', function() {
+                const subquery = table.subQuery('subTable').select(table.id.min().as('subId'));
+                const col = subquery.subId.toQuery().text;
+                strictEqual(col, '"subTable"."subId"');
+            });
         });
 
         suite('property', function() {
@@ -53,19 +60,19 @@ suite('column', function() {
                 }
             });
             test('used as alias when !== column name', function() {
-                equal(table.propertyName.toQuery().text, '"roundtrip"."column_name" AS "propertyName"');
+                strictEqual(table.propertyName.toQuery().text, '"roundtrip"."column_name" AS "propertyName"');
             });
             test('uses explicit alias when !== column name', function() {
-                equal(table.propertyName.as('alias').toQuery().text, '"roundtrip"."column_name" AS "alias"');
+                strictEqual(table.propertyName.as('alias').toQuery().text, '"roundtrip"."column_name" AS "alias"');
             });
             test('maps to column name in insert', function() {
-                equal(table.insert({ propertyName: 'propVal' }).toQuery().text, 'INSERT INTO "roundtrip" ("column_name") VALUES ($1)');
+                strictEqual(table.insert({ propertyName: 'propVal' }).toQuery().text, 'INSERT INTO "roundtrip" ("column_name") VALUES ($1)');
             });
             test('maps to column name in update', function() {
-                equal(table.update({ propertyName: 'propVal' }).toQuery().text, 'UPDATE "roundtrip" SET "column_name" = $1');
+                strictEqual(table.update({ propertyName: 'propVal' }).toQuery().text, 'UPDATE "roundtrip" SET "column_name" = $1');
             });
             test('explicitly selected by *', function() {
-                equal(
+                strictEqual(
                     table
                         .select(table.star())
                         .from(table)
@@ -84,10 +91,10 @@ suite('column', function() {
                 }
             });
             test('does not include auto generated columns in insert', function() {
-                equal(table.insert({ id: 0, name: 'name' }).toQuery().text, 'INSERT INTO "ag" ("name") VALUES ($1)');
+                strictEqual(table.insert({ id: 0, name: 'name' }).toQuery().text, 'INSERT INTO "ag" ("name") VALUES ($1)');
             });
             test('does not include auto generated columns in update', function() {
-                equal(table.update({ id: 0, name: 'name' }).toQuery().text, 'UPDATE "ag" SET "name" = $1');
+                strictEqual(table.update({ id: 0, name: 'name' }).toQuery().text, 'UPDATE "ag" SET "name" = $1');
             });
         });
 
@@ -98,15 +105,15 @@ suite('column', function() {
                 columns: ['id', 'name']
             });
             test('excludes insert properties that are not a column', function() {
-                equal(
+                strictEqual(
                     table.insert({ id: 0, _private: '_private', name: 'name' }).toQuery().text,
                     'INSERT INTO "wl" ("id", "name") VALUES ($1, $2)'
                 );
             });
             test('excludes update properties that are not a column', function() {
                 // for testing purposes ignore the compile-time error
-                //@ts-ignore
-                equal(table.update({ id: 0, _private: '_private', name: 'name' }).toQuery().text, 'UPDATE "wl" SET "id" = $1, "name" = $2');
+                // @ts-ignore
+                strictEqual(table.update({ id: 0, _private: '_private', name: 'name' }).toQuery().text, 'UPDATE "wl" SET "id" = $1, "name" = $2');
             });
         });
 
@@ -123,7 +130,7 @@ suite('column', function() {
             test('throws for update properties that are not a column', function() {
                 throws(function() {
                     // for testing purposes ignore the compile-time error
-                    //@ts-ignore
+                    // @ts-ignore
                     table.update({ id: 0, _private: '_private', name: 'name' });
                 }, Error);
             });
@@ -139,13 +146,13 @@ suite('column', function() {
                 }
             });
             test('for snake column names with no explicit property name', function() {
-                equal(table.makeMeCamel.toQuery().text, '"sc"."make_me_camel" AS "makeMeCamel"');
+                strictEqual(table.makeMeCamel.toQuery().text, '"sc"."make_me_camel" AS "makeMeCamel"');
             });
             test('but not when with explicit property name', function() {
-                equal(table.not2Cam.toQuery().text, '"sc"."not_to_camel" AS "not2Cam"');
+                strictEqual(table.not2Cam.toQuery().text, '"sc"."not_to_camel" AS "not2Cam"');
             });
             test('does not use property alias within CASE ... END', function() {
-                equal(
+                strictEqual(
                     table.makeMeCamel
                         .case([table.makeMeCamel.equals(0)], [table.makeMeCamel])
                         .as('rename')
@@ -154,7 +161,7 @@ suite('column', function() {
                 );
             });
             test('respects AS rename in RETURNING clause', function() {
-                equal(
+                strictEqual(
                     table
                         .update({ makeMeCamel: 0 })
                         .returning(table.makeMeCamel.as('rename'))

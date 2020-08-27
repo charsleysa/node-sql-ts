@@ -5,7 +5,7 @@ import { Sql } from '../../lib';
 const post = Harness.definePostTable();
 const instance = new Sql('postgres');
 
-//Postgres needs the to_tsquery function to use with @@ operator
+// Postgres needs the to_tsquery function to use with @@ operator
 Harness.test({
     query: post.select(post.star()).where(post.content.match(instance.functions.TO_TSQUERY('hello'))),
     pg: {
@@ -36,7 +36,7 @@ Harness.test({
     params: ['hello']
 });
 
-//matches, ordered by best rank first
+// matches, ordered by best rank first
 Harness.test({
     query: post
         .select(post.id, instance.functions.TS_RANK_CD(post.content, instance.functions.TO_TSQUERY('hello')).as('rank'))

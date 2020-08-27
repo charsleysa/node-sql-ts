@@ -13,7 +13,7 @@ const getFunctionCallCreator = (name: string) => {
 };
 
 // creates a hash of functions for a sql instance
-const getFunctions = (functionNames: string | string[]) => {
+const getFunctions = (functionNames: string | string[] | readonly string[]) => {
     if (typeof functionNames === 'string') { return getFunctionCallCreator(functionNames); }
 
     const functions = reduce(
@@ -28,7 +28,7 @@ const getFunctions = (functionNames: string | string[]) => {
 };
 
 // aggregate functions available to all databases
-const aggregateFunctions = ['AVG', 'COUNT', 'DISTINCT', 'MAX', 'MIN', 'SUM'];
+const aggregateFunctions = ['AVG', 'COUNT', 'DISTINCT', 'MAX', 'MIN', 'SUM'] as const;
 
 // common scalar functions available to most databases
 const scalarFunctions = [
@@ -45,25 +45,53 @@ const scalarFunctions = [
     'SUBSTR',
     'TRIM',
     'UPPER'
-];
+] as const;
 
-const dateFunctions = ['YEAR', 'MONTH', 'DAY', 'HOUR', 'CURRENT_TIMESTAMP'];
+const dateFunctions = ['YEAR', 'MONTH', 'DAY', 'HOUR', 'CURRENT_TIMESTAMP'] as const;
 
 // hstore function available to Postgres
-const hstoreFunction = 'HSTORE';
+const hstoreFunctions = ['HSTORE'] as const;
 
 // text search functions available to Postgres
-const textsearchFunctions = ['TS_RANK', 'TS_RANK_CD', 'PLAINTO_TSQUERY', 'TO_TSQUERY', 'TO_TSVECTOR', 'SETWEIGHT'];
+const textsearchFunctions = ['TS_RANK', 'TS_RANK_CD', 'PLAINTO_TSQUERY', 'TO_TSQUERY', 'TO_TSVECTOR', 'SETWEIGHT'] as const;
 
-const standardFunctionNames = aggregateFunctions
-    .concat(scalarFunctions)
-    .concat(hstoreFunction)
-    .concat(textsearchFunctions)
-    .concat(dateFunctions);
+// jsonb functions available to postgres
+const jsonbFunctions = [
+    'JSONB_ARRAY_LENGTH',
+    'JSONB_BUILD_ARRAY',
+    'JSONB_BUILD_OBECT',
+    'JSONB_EXTRACT_PATH',
+    'JSONB_INSERT',
+    'JSONB_OBJECT',
+    'JSONB_PRETTY',
+    'JSONB_SET',
+    'JSONB_STRIP_NULLS',
+    'JSONB_TYPEOF',
+    'TO_JSONB',
+    'JSONB_ARRAY_ELEMENTS',
+    'JSONB_ARRAY_ELEMENTS_TEXT',
+    'JSONB_EACH',
+    'JSONB_EACH_TEXT',
+    'JSONB_OBJECT_KEYS',
+    'JSONB_AGG'
+] as const;
+
+const standardFunctionNames = [
+    ...aggregateFunctions,
+    ...scalarFunctions,
+    ...hstoreFunctions,
+    ...textsearchFunctions,
+    ...dateFunctions,
+    ...jsonbFunctions
+] as const;
+
+type StandardFunctions = {
+    [K in (typeof standardFunctionNames)[number]]: (...args: any[]) => FunctionCallNode;
+}
 
 // creates a hash of standard functions for a sql instance
-const getStandardFunctions = (): { [key: string]: (...args: any[]) => FunctionCallNode } => {
-    return getFunctions(standardFunctionNames);
+const getStandardFunctions = (): StandardFunctions => {
+    return getFunctions(standardFunctionNames) as StandardFunctions;
 };
 
-export { getFunctions, getStandardFunctions };
+export { StandardFunctions, getFunctions, getStandardFunctions };

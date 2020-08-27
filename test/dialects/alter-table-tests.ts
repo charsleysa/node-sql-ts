@@ -106,7 +106,7 @@ Harness.test({
     params: []
 });
 
-var group = Table.define<{ id: string; userId: string }>({
+const group = Table.define<{ id: string; userId: string }>({
     name: 'group',
     columns: [
         {
@@ -264,7 +264,7 @@ Harness.test({
     params: []
 });
 
-var UserWithSignature = Table.define<{ Signature: string }>({
+const UserWithSignature = Table.define<{ Signature: string }>({
     name: 'UserWithSignature',
     columns: [
         {

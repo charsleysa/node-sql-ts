@@ -4,7 +4,7 @@ import * as Harness from './support';
 import { Sql } from '../../lib';
 const instance = new Sql('postgres');
 
-var user = instance.define({
+const user = instance.define({
     name: 'user',
     columns: {
         id: {
@@ -13,7 +13,7 @@ var user = instance.define({
     }
 });
 
-var photo = instance.define({
+const photo = instance.define({
     name: 'photo',
     columns: {
         ownerId: {
@@ -22,7 +22,7 @@ var photo = instance.define({
     }
 });
 
-var post = instance.define({
+const post = instance.define({
     name: 'post',
     columns: {
         id: {

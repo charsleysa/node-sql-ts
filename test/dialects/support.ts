@@ -37,14 +37,14 @@ function customTest(expected: any) {
 
                     // test result is correct
                     const expectedText = expectedObject.text || expectedObject;
-                    assert.equal(compiledQuery.text, expectedText);
+                    assert.strictEqual(compiledQuery.text, expectedText);
 
                     // if params are specified then test these are correct
                     const expectedParams = expectedObject.params || expected.params;
                     if (undefined !== expectedParams) {
-                        assert.equal(expectedParams.length, compiledQuery.values.length, 'params length');
+                        assert.strictEqual(expectedParams.length, compiledQuery.values.length, 'params length');
                         for (let i = 0; i < expectedParams.length; i++) {
-                            assert.deepEqual(expectedParams[i], compiledQuery.values[i], 'param ' + (i + 1));
+                            assert.deepStrictEqual(expectedParams[i], compiledQuery.values[i], 'param ' + (i + 1));
                         }
                     }
                 }
@@ -59,7 +59,7 @@ function customTest(expected: any) {
                         const compiledString = new DialectClass(expectedObject.config || {}).getString(expected.query);
 
                         // test result is correct
-                        assert.equal(compiledString, expectedObject.string);
+                        assert.strictEqual(compiledString, expectedObject.string);
                     }
                 }
             });

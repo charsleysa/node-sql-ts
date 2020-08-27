@@ -1,6 +1,6 @@
 'use strict';
 
-import { equal } from 'assert';
+import { strictEqual } from 'assert';
 
 import { Node } from '../lib/node/';
 
@@ -20,15 +20,15 @@ class Boom extends Node {
 
 test('clause definition', function() {
     const select = new Bang();
-    equal(select.type, 'SELECT');
-    equal(select.nodes.length, 0);
+    strictEqual(select.type, 'SELECT');
+    strictEqual(select.nodes.length, 0);
 
     const q = new Boom('hai');
-    equal(q.nodes.length, 0);
+    strictEqual(q.nodes.length, 0);
     const q2 = new Boom('bai');
     q.nodes.push(select);
-    equal(q.nodes.length, 1);
-    equal(q.name, 'hai');
-    equal(q2.nodes.length, 0);
-    equal(q2.name, 'bai');
+    strictEqual(q.nodes.length, 1);
+    strictEqual(q.name, 'hai');
+    strictEqual(q2.nodes.length, 0);
+    strictEqual(q2.name, 'bai');
 });

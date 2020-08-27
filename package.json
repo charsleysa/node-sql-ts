@@ -16,7 +16,7 @@
     "module": "dist/esm/",
     "types": "dist/esm/index.d.ts",
     "scripts": {
-        "pretest": "tslint --project .",
+        "pretest": "tslint --project . && tslint --project ./test",
         "test": "TS_NODE_PROJECT='test/tsconfig.json' mocha",
         "lint": "tslint --project .",
         "tsc": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
@@ -28,19 +28,19 @@
         "node": "^12.0.0 || >=14.0.0"
     },
     "dependencies": {
+        "lodash": "^4.17.20",
         "sliced": "~1.0.x",
-        "lodash": "~4.17.15",
-        "tslib": "~2.0.0"
+        "tslib": "~2.0.1"
     },
     "devDependencies": {
-        "@types/lodash": "^4.14.157",
-        "@types/mocha": "^7.0.2",
+        "@types/lodash": "^4.14.160",
+        "@types/mocha": "^8.0.3",
         "@types/node": "^12.0.0",
-        "mocha": "^8.0.1",
-        "ts-node": "^8.10.2",
-        "tslint": "^6.1.2",
+        "mocha": "^8.1.2",
+        "ts-node": "^9.0.0",
+        "tslint": "^6.1.3",
         "tslint-config-prettier": "^1.18.0",
-        "typescript": "^3.9.6"
+        "typescript": "^4.0.2"
     },
     "mocha": {
         "reporter": "dot",

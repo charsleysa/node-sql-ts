@@ -7,4 +7,5 @@ test/
 .travis.yml
 runtests.js
 tsconfig.json
+tsconfig.cjs.json
 tslint.json

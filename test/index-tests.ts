@@ -1,5 +1,5 @@
 'use strict';
-import { throws, equal, deepEqual } from 'assert';
+import { throws, strictEqual, deepStrictEqual } from 'assert';
 
 import { Sql } from '../lib';
 
@@ -13,29 +13,29 @@ suite('index', function() {
     test('unknown dialect throws exception', function() {
         throws(function() {
             // for testing purposes ignore the compile-time error
-            //@ts-ignore
+            // @ts-ignore
             instance.setDialect('asdf');
         });
     });
 
     test("stores the default dialect's name if none has been passed", function() {
-        equal(new Sql().dialectName, 'postgres');
+        strictEqual(new Sql().dialectName, 'postgres');
     });
 
     test('stores the sqlite dialect', function() {
-        equal(new Sql('sqlite').dialectName, 'sqlite');
+        strictEqual(new Sql('sqlite').dialectName, 'sqlite');
     });
 
     test('stores the mysql dialect', function() {
-        equal(new Sql('mysql').dialectName, 'mysql');
+        strictEqual(new Sql('mysql').dialectName, 'mysql');
     });
 
     test('stores the mssql dialect', function() {
-        equal(new Sql('mssql').dialectName, 'mssql');
+        strictEqual(new Sql('mssql').dialectName, 'mssql');
     });
 
     test('stores the oracle dialect', function() {
-        equal(new Sql('oracle').dialectName, 'oracle');
+        strictEqual(new Sql('oracle').dialectName, 'oracle');
     });
 
     test('can create a query using the default dialect', function() {
@@ -44,8 +44,8 @@ suite('index', function() {
             .from(user)
             .where(user.email.equals('brian.m.carlson@gmail.com'))
             .toQuery();
-        equal(query.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
-        equal(query.values[0], 'brian.m.carlson@gmail.com');
+        strictEqual(query.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
+        strictEqual(query.values[0], 'brian.m.carlson@gmail.com');
     });
 
     test('setting dialect to postgres works', function() {
@@ -55,8 +55,8 @@ suite('index', function() {
             .from(user)
             .where(user.email.equals('brian.m.carlson@gmail.com'))
             .toQuery();
-        equal(query.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
-        equal(query.values[0], 'brian.m.carlson@gmail.com');
+        strictEqual(query.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
+        strictEqual(query.values[0], 'brian.m.carlson@gmail.com');
     });
 
     test('sql.create creates an instance with a new dialect', function() {
@@ -66,8 +66,8 @@ suite('index', function() {
             .from(user)
             .where(user.email.equals('brian.m.carlson@gmail.com'))
             .toQuery();
-        equal(query.text, 'SELECT `user`.`id` FROM `user` WHERE (`user`.`email` = ?)');
-        equal(query.values[0], 'brian.m.carlson@gmail.com');
+        strictEqual(query.text, 'SELECT `user`.`id` FROM `user` WHERE (`user`.`email` = ?)');
+        strictEqual(query.values[0], 'brian.m.carlson@gmail.com');
     });
 
     test('sql.define for parallel dialects work independently', function() {
@@ -83,11 +83,11 @@ suite('index', function() {
         const sqliteTable = sqlite.define({ name: 'table', columns: ['column'] });
         const oracleTable = oracle.define({ name: 'table', columns: ['column'] });
 
-        equal(mysqlTable.sql, mysql);
-        equal(postgresTable.sql, postgres);
-        equal(sqliteTable.sql, sqlite);
-        equal(mssqlTable.sql, mssql);
-        equal(oracleTable.sql, oracle);
+        strictEqual(mysqlTable.sql, mysql);
+        strictEqual(postgresTable.sql, postgres);
+        strictEqual(sqliteTable.sql, sqlite);
+        strictEqual(mssqlTable.sql, mssql);
+        strictEqual(oracleTable.sql, oracle);
     });
 
     test('using Sql as a class', function() {
@@ -97,11 +97,11 @@ suite('index', function() {
         const sqlite = new Sql('sqlite');
         const oracle = new Sql('oracle');
 
-        equal(mysql.dialect, require('../lib/dialect/mysql').Mysql);
-        equal(postgres.dialect, require('../lib/dialect/postgres').Postgres);
-        equal(sqlite.dialect, require('../lib/dialect/sqlite').Sqlite);
-        equal(mssql.dialect, require('../lib/dialect/mssql').Mssql);
-        equal(oracle.dialect, require('../lib/dialect/oracle').Oracle);
+        strictEqual(mysql.dialect, require('../lib/dialect/mysql').Mysql);
+        strictEqual(postgres.dialect, require('../lib/dialect/postgres').Postgres);
+        strictEqual(sqlite.dialect, require('../lib/dialect/sqlite').Sqlite);
+        strictEqual(mssql.dialect, require('../lib/dialect/mssql').Mssql);
+        strictEqual(oracle.dialect, require('../lib/dialect/oracle').Oracle);
     });
 
     test('override dialect for toQuery using dialect name', function() {
@@ -138,20 +138,20 @@ suite('index', function() {
             .toQuery('oracle');
 
         const values = ['brian.m.carlson@gmail.com'];
-        equal(sqliteQuery.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
-        deepEqual(sqliteQuery.values, values);
+        strictEqual(sqliteQuery.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
+        deepStrictEqual(sqliteQuery.values, values);
 
-        equal(postgresQuery.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
-        deepEqual(postgresQuery.values, values);
+        strictEqual(postgresQuery.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
+        deepStrictEqual(postgresQuery.values, values);
 
-        equal(mysqlQuery.text, 'SELECT `user`.`id` FROM `user` WHERE (`user`.`email` = ?)');
-        deepEqual(mysqlQuery.values, values);
+        strictEqual(mysqlQuery.text, 'SELECT `user`.`id` FROM `user` WHERE (`user`.`email` = ?)');
+        deepStrictEqual(mysqlQuery.values, values);
 
-        equal(mssqlQuery.text, 'SELECT [user].[id] FROM [user] WHERE ([user].[email] = @1)');
-        deepEqual(mssqlQuery.values, values);
+        strictEqual(mssqlQuery.text, 'SELECT [user].[id] FROM [user] WHERE ([user].[email] = @1)');
+        deepStrictEqual(mssqlQuery.values, values);
 
-        equal(oracleQuery.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = :1)');
-        deepEqual(oracleQuery.values, values);
+        strictEqual(oracleQuery.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = :1)');
+        deepStrictEqual(oracleQuery.values, values);
     });
 
     test('override dialect for toQuery using invalid dialect name', function() {
@@ -167,9 +167,9 @@ suite('index', function() {
             .from(user)
             .where(user.email.equals('brian.m.carlson@gmail.com'))
             .toNamedQuery('users');
-        equal(query.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
-        equal(query.values[0], 'brian.m.carlson@gmail.com');
-        equal(query.name, 'users');
+        strictEqual(query.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
+        strictEqual(query.values[0], 'brian.m.carlson@gmail.com');
+        strictEqual(query.name, 'users');
     });
 
     test('provide an empty query name for toNamedQuery', function() {
@@ -183,7 +183,7 @@ suite('index', function() {
         const query = instance.select(user.id).from(user);
         throws(function() {
             // for testing purposes ignore the compile-time error
-            //@ts-ignore
+            // @ts-ignore
             query.toNamedQuery();
         });
     });
@@ -222,25 +222,25 @@ suite('index', function() {
             .toNamedQuery('user.select_brian', 'mssql');
 
         const values = ['brian.m.carlson@gmail.com'];
-        equal(sqliteQuery.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
-        deepEqual(sqliteQuery.values, values);
-        equal('user.select_brian', sqliteQuery.name);
+        strictEqual(sqliteQuery.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
+        deepStrictEqual(sqliteQuery.values, values);
+        strictEqual('user.select_brian', sqliteQuery.name);
 
-        equal(postgresQuery.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
-        deepEqual(postgresQuery.values, values);
-        equal('user.select_brian', postgresQuery.name);
+        strictEqual(postgresQuery.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = $1)');
+        deepStrictEqual(postgresQuery.values, values);
+        strictEqual('user.select_brian', postgresQuery.name);
 
-        equal(mysqlQuery.text, 'SELECT `user`.`id` FROM `user` WHERE (`user`.`email` = ?)');
-        deepEqual(mysqlQuery.values, values);
-        equal('user.select_brian', mysqlQuery.name);
+        strictEqual(mysqlQuery.text, 'SELECT `user`.`id` FROM `user` WHERE (`user`.`email` = ?)');
+        deepStrictEqual(mysqlQuery.values, values);
+        strictEqual('user.select_brian', mysqlQuery.name);
 
-        equal(mssqlQuery.text, 'SELECT [user].[id] FROM [user] WHERE ([user].[email] = @1)');
-        deepEqual(mssqlQuery.values, values);
-        equal('user.select_brian', mssqlQuery.name);
+        strictEqual(mssqlQuery.text, 'SELECT [user].[id] FROM [user] WHERE ([user].[email] = @1)');
+        deepStrictEqual(mssqlQuery.values, values);
+        strictEqual('user.select_brian', mssqlQuery.name);
 
-        equal(oracleQuery.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = :1)');
-        deepEqual(oracleQuery.values, values);
-        equal('user.select_brian', oracleQuery.name);
+        strictEqual(oracleQuery.text, 'SELECT "user"."id" FROM "user" WHERE ("user"."email" = :1)');
+        deepStrictEqual(oracleQuery.values, values);
+        strictEqual('user.select_brian', oracleQuery.name);
     });
 
     test('override dialect for toNamedQuery using invalid dialect name', function() {
@@ -257,8 +257,8 @@ suite('index', function() {
             .from(user)
             .where(user.email.equals('x@y.com'))
             .toQuery();
-        equal(query.text, 'SELECT [user].[id] FROM [user] WHERE ([user].[email] = @1)');
-        equal(query.values[0], 'x@y.com');
+        strictEqual(query.text, 'SELECT [user].[id] FROM [user] WHERE ([user].[email] = @1)');
+        strictEqual(query.values[0], 'x@y.com');
     });
 
     test('mssql override default parameter placeholder with ?', function() {
@@ -268,7 +268,7 @@ suite('index', function() {
             .from(user)
             .where(user.email.equals('x@y.com'))
             .toQuery();
-        equal(query.text, 'SELECT [user].[id] FROM [user] WHERE ([user].[email] = ?)');
-        equal(query.values[0], 'x@y.com');
+        strictEqual(query.text, 'SELECT [user].[id] FROM [user] WHERE ([user].[email] = ?)');
+        strictEqual(query.values[0], 'x@y.com');
     });
 });

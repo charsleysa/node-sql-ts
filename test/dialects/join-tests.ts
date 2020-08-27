@@ -162,7 +162,7 @@ Harness.test({
     params: []
 });
 
-var subposts = post
+const subposts = post
     .subQuery('subposts')
     .select(post.content, post.userId.as('subpostUserId'))
     .from(post);

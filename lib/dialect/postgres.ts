@@ -840,7 +840,7 @@ export class Postgres extends Dialect {
                 }
             }
             if (!!columnNode.references) {
-                assert.equal(
+                assert.strictEqual(
                     typeof columnNode.references,
                     'object',
                     'references is not a object for column ' +
@@ -912,7 +912,7 @@ export class Postgres extends Dialect {
             assert(foreignKeyNode.table, 'Foreign table missing for table reference');
             assert(foreignKeyNode.columns, 'Columns missing for table reference');
             if (foreignKeyNode.refColumns !== undefined) {
-                assert.equal(
+                assert.strictEqual(
                     foreignKeyNode.columns.length,
                     foreignKeyNode.refColumns.length,
                     'Number of local columns and foreign columns differ in table reference'

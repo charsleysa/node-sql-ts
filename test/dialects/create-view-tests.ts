@@ -3,7 +3,7 @@
 import * as Harness from './support';
 const user = Harness.defineUserTable();
 
-//simple view create
+// simple view create
 Harness.test({
     query: user.select(user.star()).createView('allUsersView'),
     pg: {
@@ -28,7 +28,7 @@ Harness.test({
     }
 });
 
-//create view with parameters
+// create view with parameters
 Harness.test({
     query: user
         .select(user.star())
@@ -56,7 +56,7 @@ Harness.test({
     }
 });
 
-//Tests error raised for non-SELECT create view attempts
+// Tests error raised for non-SELECT create view attempts
 Harness.test({
     query: user
         .delete()

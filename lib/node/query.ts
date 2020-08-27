@@ -560,7 +560,9 @@ export class Query<T> extends Node {
 // to the where clause like so:
 //   const query=a.select().where(a.name.equals("joe")).or(a.name.equals("sam"))
 const valueExpressions = valueExpressionMixin();
+// @ts-ignore
 delete valueExpressions.or;
+// @ts-ignore
 delete valueExpressions.and;
 extend(Query.prototype, valueExpressions);
 

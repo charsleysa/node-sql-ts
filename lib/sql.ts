@@ -3,14 +3,14 @@
 import defaults from 'lodash/defaults';
 import sliced from 'sliced';
 import { Column } from './column';
-import { SQLDialects, TableDefinition } from './configTypes';
+import { ColumnDefinition, SQLDialects, TableDefinition } from './configTypes';
 import { DEFAULT_DIALECT, getDialect } from './dialect';
 import * as functions from './functions';
-import { ArrayCallNode, FunctionCallNode, IntervalNode, Query } from './node';
+import { ArrayCallNode, FunctionCallNode, IntervalNode, LiteralNode, Query } from './node';
 import { Table, TableWithColumns } from './table';
 
 class Sql {
-    public functions: { [key: string]: (...args: any[]) => FunctionCallNode };
+    public functions: functions.StandardFunctions;
     public dialect: any;
     public dialectName!: SQLDialects;
     public config: any;
@@ -34,6 +34,9 @@ class Sql {
             sql: this
         });
         return Table.define(def);
+    }
+    public defineColumn<T>(def: ColumnDefinition): Column<T> {
+        return new Column<T>(def);
     }
     // Returns a bracketed call creator literal
     public array(...args: any[]) {
@@ -68,6 +71,10 @@ class Sql {
         };
         const cn = new Column(config);
         return cn;
+    }
+    // Create a literal
+    public literal(literal: any): LiteralNode {
+        return new LiteralNode(literal);
     }
 }
 

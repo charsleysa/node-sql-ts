@@ -47,7 +47,7 @@ Harness.test({
 
 // A real world example: "How many records does page 3 have?"
 // This could be less than 10 (the limit) if we are on the last page.
-var subquery = user
+const subquery = user
     .subQuery('subquery_for_count')
     .select(user.literal(1).as('count_column'))
     .limit(10)

@@ -9,6 +9,6 @@ const Foo = Table.define<{ baz: string; bar: string }>({
 });
 
 test('operators', function() {
-    assert.equal(Foo.bar.isNull().operator, 'IS NULL');
-    assert.equal(Foo.baz.isNotNull().operator, 'IS NOT NULL');
+    assert.strictEqual(Foo.bar.isNull().operator, 'IS NULL');
+    assert.strictEqual(Foo.baz.isNotNull().operator, 'IS NOT NULL');
 });

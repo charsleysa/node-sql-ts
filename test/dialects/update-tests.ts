@@ -182,7 +182,7 @@ Harness.test({
 // Binary updates
 Harness.test({
     query: post.update({
-        //@ts-ignore should investigate whether this should be valid for typings
+        // @ts-ignore should investigate whether this should be valid for typings
         content: Buffer.from('test')
     }),
     pg: {

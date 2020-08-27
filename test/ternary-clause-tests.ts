@@ -9,6 +9,6 @@ const Foo = Table.define<{ baz: string; bar: string }>({
 });
 
 test('operators', function() {
-    assert.equal(Foo.bar.between(1, 2).operator, 'BETWEEN');
-    assert.equal(Foo.baz.between(1, 2).separator, 'AND');
+    assert.strictEqual(Foo.bar.between(1, 2).operator, 'BETWEEN');
+    assert.strictEqual(Foo.baz.between(1, 2).separator, 'AND');
 });

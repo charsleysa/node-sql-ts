@@ -1,11 +1,10 @@
 'use strict';
-import assert from 'assert';
-import { equal, ok, throws, doesNotThrow, notEqual } from 'assert';
+import assert, { strictEqual, ok, throws, doesNotThrow, notStrictEqual } from 'assert';
 
 import { Table } from '../lib/table';
 import { Column } from '../lib/column';
 import { Sql } from '../lib';
-import { ColumnNode, ModifierNode } from '../lib/node';
+import { ColumnNode, ModifierNode, ParameterNode } from '../lib/node';
 
 suite('table', function() {
     const table = new Table({
@@ -13,32 +12,32 @@ suite('table', function() {
     } as any);
 
     test('has name', function() {
-        equal(table.getName(), 'bang');
+        strictEqual(table.getName(), 'bang');
     });
 
     test('has no columns', function() {
-        equal(table.columns.length, 0);
+        strictEqual(table.columns.length, 0);
     });
 
     test('can add column', function() {
         const col = new Column({
-            table: table,
+            table,
             name: 'boom'
         });
 
-        equal(col.name, 'boom');
-        equal(col.table!.getName(), 'bang');
+        strictEqual(col.name, 'boom');
+        strictEqual(col.table!.getName(), 'bang');
 
         table.addColumn(col);
-        equal(table.columns.length, 1);
-        //@ts-ignore column added after table created
-        equal(table.boom, col);
+        strictEqual(table.columns.length, 1);
+        // @ts-ignore column added after table created
+        strictEqual(table.boom, col);
     });
 
     test('creates query node', function() {
-        //@ts-ignore column added after table created
+        // @ts-ignore column added after table created
         const sel = table.select(table.boom);
-        equal(sel.type, 'QUERY');
+        strictEqual(sel.type, 'QUERY');
     });
 
     test('creates *-query if no args is provided to select()', function() {
@@ -51,13 +50,13 @@ suite('table', function() {
             name: 'user',
             columns: ['id', 'name']
         });
-        equal(user.getName(), 'user');
-        equal(user.columns.length, 2);
-        equal(user.columns[0].name, 'id');
-        equal(user.columns[1].name, 'name');
-        equal(user.columns[0].name, user.id.name);
-        equal(user.id.table, user);
-        equal(user.name.table, user);
+        strictEqual(user.getName(), 'user');
+        strictEqual(user.columns.length, 2);
+        strictEqual(user.columns[0].name, 'id');
+        strictEqual(user.columns[1].name, 'name');
+        strictEqual(user.columns[0].name, user.id.name);
+        strictEqual(user.id.table, user);
+        strictEqual(user.name.table, user);
     });
 });
 
@@ -76,14 +75,14 @@ test('table with user-defined column property names', function() {
         ]
     });
     const cols = table.columns;
-    equal(cols.length, 2);
-    equal(cols[0].name, 'id');
+    strictEqual(cols.length, 2);
+    strictEqual(cols[0].name, 'id');
     assert(cols[0] === table.theId, 'Expected table.theId to be the first column');
-    //@ts-ignore id doesn't exist
+    // @ts-ignore id doesn't exist
     assert(table.id === undefined, 'Expected table.id to not exist');
-    equal(cols[1].name, 'email');
+    strictEqual(cols[1].name, 'email');
     assert(cols[1] === table.uniqueEmail, 'Expected table.uniqueEmail to be the second column');
-    //@ts-ignore email doesn't exist
+    // @ts-ignore email doesn't exist
     assert(table.email === undefined, 'Expected table.email to not exist');
 });
 
@@ -106,17 +105,17 @@ test('table with fancier column definitions', function() {
         ]
     });
     const cols = table.columns;
-    equal(cols.length, 2);
+    strictEqual(cols.length, 2);
     const id = cols[0];
-    equal(id.name, 'id');
-    equal(id.dataType, 'serial');
-    equal(id.notNull, true);
-    equal(id.primaryKey, true);
+    strictEqual(id.name, 'id');
+    strictEqual(id.dataType, 'serial');
+    strictEqual(id.notNull, true);
+    strictEqual(id.primaryKey, true);
     const email = cols[1];
-    equal(email.name, 'email');
-    equal(email.dataType, 'text');
-    equal(email.notNull, true);
-    equal(email.unique, true);
+    strictEqual(email.name, 'email');
+    strictEqual(email.dataType, 'text');
+    strictEqual(email.notNull, true);
+    strictEqual(email.unique, true);
 });
 
 test('table with object structured column definitions', function() {
@@ -136,25 +135,25 @@ test('table with object structured column definitions', function() {
         }
     });
     const cols = table.columns;
-    equal(cols.length, 2);
+    strictEqual(cols.length, 2);
     const id = cols[0];
-    equal(id.name, 'id');
-    equal(id.dataType, 'serial');
-    equal(id.notNull, true);
-    equal(id.primaryKey, true);
+    strictEqual(id.name, 'id');
+    strictEqual(id.dataType, 'serial');
+    strictEqual(id.notNull, true);
+    strictEqual(id.primaryKey, true);
     const email = cols[1];
-    equal(email.name, 'email');
-    equal(email.dataType, 'text');
-    equal(email.notNull, true);
-    equal(email.unique, true);
+    strictEqual(email.name, 'email');
+    strictEqual(email.dataType, 'text');
+    strictEqual(email.notNull, true);
+    strictEqual(email.unique, true);
 });
 
 test('table with dynamic column definition', function() {
     const table = Table.define({ name: 'foo', columns: [] });
-    equal(table.columns.length, 0);
+    strictEqual(table.columns.length, 0);
 
     table.addColumn('foo');
-    equal(table.columns.length, 1);
+    strictEqual(table.columns.length, 1);
 
     throws(function() {
         table.addColumn('foo');
@@ -164,15 +163,15 @@ test('table with dynamic column definition', function() {
         table.addColumn('foo', { noisy: false });
     });
 
-    equal(table.columns.length, 1);
+    strictEqual(table.columns.length, 1);
 });
 
 test('hasColumn', function() {
     const table = Table.define({ name: 'foo', columns: [] });
 
-    equal(table.hasColumn('baz'), false);
+    strictEqual(table.hasColumn('baz'), false);
     table.addColumn('baz');
-    equal(table.hasColumn('baz'), true);
+    strictEqual(table.hasColumn('baz'), true);
 });
 
 test('hasColumn with user-defined column property', function() {
@@ -187,14 +186,14 @@ test('hasColumn with user-defined column property', function() {
         ]
     });
 
-    equal(table.hasColumn('id'), true);
-    equal(table.hasColumn('theId'), true);
+    strictEqual(table.hasColumn('id'), true);
+    strictEqual(table.hasColumn('theId'), true);
 });
 
 test('the column "from" does not overwrite the from method', function() {
     const table = Table.define({ name: 'foo', columns: [] });
     table.addColumn('from');
-    equal(typeof table.from, 'function');
+    strictEqual(typeof table.from, 'function');
 });
 
 test('getColumn returns the from column', function() {
@@ -206,16 +205,16 @@ test('getColumn returns the from column', function() {
 
 test('set and get schema', function() {
     const table = Table.define({ name: 'foo', schema: 'bar', columns: [] });
-    equal(table.getSchema(), 'bar');
+    strictEqual(table.getSchema(), 'bar');
     table.setSchema('barbarz');
-    equal(table.getSchema(), 'barbarz');
+    strictEqual(table.getSchema(), 'barbarz');
 });
 
 suite('table.clone', function() {
     test('check if it is a copy, not just a reference', function() {
         const table = Table.define({ name: 'foo', columns: [] });
         const copy = table.clone();
-        notEqual(table, copy);
+        notStrictEqual(table, copy);
     });
 
     test('copy columns', function() {
@@ -239,22 +238,22 @@ suite('table.clone', function() {
             columnWhiteList: false
         });
 
-        equal(copy.getSchema(), 'test');
-        equal(copy.snakeToCamel, false);
-        equal(copy.columnWhiteList, false);
+        strictEqual(copy.getSchema(), 'test');
+        strictEqual(copy.snakeToCamel, false);
+        strictEqual(copy.columnWhiteList, false);
     });
 });
 
 test('dialects', function() {
     const sql1 = new Sql('mysql');
-    const foo1 = sql1.define<{ id: number }>({ name: 'foo', columns: ['id'] }),
-        bar1 = sql1.define<{ id: number }>({ name: 'bar', columns: ['id'] });
+    const foo1 = sql1.define<{ id: number }>({ name: 'foo', columns: ['id'] });
+    const bar1 = sql1.define<{ id: number }>({ name: 'bar', columns: ['id'] });
 
     const actual1 = foo1
         .join(bar1)
         .on(bar1.id.equals(1))
         .toString();
-    equal(actual1, '`foo` INNER JOIN `bar` ON (`bar`.`id` = 1)');
+    strictEqual(actual1, '`foo` INNER JOIN `bar` ON (`bar`.`id` = 1)');
 
     const sql2 = new Sql('postgres');
     const foo2 = sql2.define<{ id: number }>({ name: 'foo', columns: ['id'] });
@@ -263,28 +262,28 @@ test('dialects', function() {
         .join(bar2)
         .on(bar2.id.equals(1))
         .toString();
-    equal(actual2, '"foo" INNER JOIN "bar" ON ("bar"."id" = 1)');
+    strictEqual(actual2, '"foo" INNER JOIN "bar" ON ("bar"."id" = 1)');
 });
 
 test('limit', function() {
     const user = Table.define({ name: 'user', columns: ['id', 'name'] });
     const query = user.limit(3);
-    equal(query.nodes.length, 1);
-    equal(query.nodes[0].type, 'LIMIT');
-    equal((query.nodes[0] as ModifierNode).count, 3);
+    strictEqual(query.nodes.length, 1);
+    strictEqual(query.nodes[0].type, 'LIMIT');
+    strictEqual(((query.nodes[0] as ModifierNode).count as ParameterNode).value(), 3);
 });
 
 test('offset', function() {
     const user = Table.define({ name: 'user', columns: ['id', 'name'] });
     const query = user.offset(20);
-    equal(query.nodes.length, 1);
-    equal(query.nodes[0].type, 'OFFSET');
-    equal((query.nodes[0] as ModifierNode).count, 20);
+    strictEqual(query.nodes.length, 1);
+    strictEqual(query.nodes[0].type, 'OFFSET');
+    strictEqual(((query.nodes[0] as ModifierNode).count as ParameterNode).value(), 20);
 });
 
 test('order', function() {
     const user = Table.define<{ id: number; name: string }>({ name: 'user', columns: ['id', 'name'] });
     const query = user.order(user.name);
-    equal(query.nodes.length, 1);
-    equal(query.nodes[0].type, 'ORDER BY');
+    strictEqual(query.nodes.length, 1);
+    strictEqual(query.nodes[0].type, 'ORDER BY');
 });

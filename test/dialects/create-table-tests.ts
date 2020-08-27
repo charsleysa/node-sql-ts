@@ -524,14 +524,14 @@ Harness.test({
         text: 'CREATE TEMPORARY TABLE `post` (`id` int)',
         string: 'CREATE TEMPORARY TABLE `post` (`id` int)'
     },
-    //mssql: {
-    //  text  : 'CREATE TABLE [#post] ([id] int)',
-    //  string: 'CREATE TABLE [#post] ([id] int)'
-    //},
+    // mssql: {
+    //     text  : 'CREATE TABLE [#post] ([id] int)',
+    //     string: 'CREATE TABLE [#post] ([id] int)'
+    // },
     params: []
 });
 
-var users = Table.define({
+const users = Table.define({
     name: 'users',
     columns: {
         id: {
@@ -579,8 +579,8 @@ Harness.test({
             {
                 name: 'id',
                 dataType: 'int',
-                //primaryKey: true,
-                //notNull: true,
+                // primaryKey: true,
+                // notNull: true,
                 unique: true
             }
         ]
@@ -608,7 +608,7 @@ Harness.test({
     params: []
 });
 
-var noUsers = Table.define({
+const noUsers = Table.define({
     name: 'no_users',
     columns: {
         id: {
@@ -655,7 +655,7 @@ Harness.test({
             {
                 name: 'id',
                 dataType: 'int',
-                //primaryKey: true,
+                // primaryKey: true,
                 notNull: true,
                 unique: true
             }
@@ -692,7 +692,7 @@ Harness.test({
                 name: 'id',
                 dataType: 'int',
                 primaryKey: true,
-                //notNull: true,
+                // notNull: true,
                 unique: true
             }
         ]
