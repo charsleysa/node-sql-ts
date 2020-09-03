@@ -163,6 +163,32 @@ Harness.test({
     params: [new Date('Sat, 01 Jan 2000 00:00:00 GMT')]
 });
 
+// Date Year 0 and before
+Harness.test({
+    query: post.content.equals(new Date('0000-01-01T00:00:00.000Z')),
+    pg: {
+        text: '("post"."content" = $1)',
+        string: '("post"."content" = \'0001-01-01T00:00:00.000Z BC\')'
+    },
+    sqlite: {
+        text: '("post"."content" = $1)',
+        string: '("post"."content" = \'0000-01-01T00:00:00.000Z\')'
+    },
+    mysql: {
+        text: '(`post`.`content` = ?)',
+        string: "(`post`.`content` = '0000-01-01T00:00:00.000Z')"
+    },
+    mssql: {
+        text: '([post].[content] = @1)',
+        string: "([post].[content] = '0000-01-01T00:00:00.000Z')"
+    },
+    oracle: {
+        text: '("post"."content" = :1)',
+        string: '("post"."content" = \'0000-01-01T00:00:00.000Z\')'
+    },
+    params: [new Date('0000-01-01T00:00:00.000Z')]
+});
+
 // Object
 const customObject = {
     toString() {

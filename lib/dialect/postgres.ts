@@ -4,6 +4,7 @@ import assert from 'assert';
 import isFunction from 'lodash/isFunction';
 import isNumber from 'lodash/isNumber';
 import map from 'lodash/map';
+import padStart from 'lodash/padStart';
 
 import {
     AddColumnNode,
@@ -69,6 +70,31 @@ import {
 } from '../node';
 import { Table } from '../table';
 import { Dialect } from './dialect';
+
+function dateToStringUTC(date: Date) {
+    let year = date.getUTCFullYear();
+    const isBCYear = year < 1;
+    if (isBCYear) year = Math.abs(year) + 1; // negative years are 1 off their BC representation
+
+    let ret =
+        padStart(String(year), 4, '0') +
+        '-' +
+        padStart(String(date.getUTCMonth() + 1), 2, '0') +
+        '-' +
+        padStart(String(date.getUTCDate()), 2, '0') +
+        'T' +
+        padStart(String(date.getUTCHours()), 2, '0') +
+        ':' +
+        padStart(String(date.getUTCMinutes()), 2, '0') +
+        ':' +
+        padStart(String(date.getUTCSeconds()), 2, '0') +
+        '.' +
+        padStart(String(date.getUTCMilliseconds()), 3, '0');
+
+    ret += 'Z';
+    if (isBCYear) ret += ' BC';
+    return ret;
+}
 
 /**
  * Config can contain:
@@ -148,8 +174,10 @@ export class Postgres extends Dialect {
                 }
             } else if (value instanceof Date) {
                 // Date object's default toString format does not get parsed well
-                // Handle dates using toISOString
-                value = this._getParameterValue(value.toISOString());
+                // Handle dates using custom dateToString method for postgres and toISOString for others
+                value = (this.myClass === Postgres)
+                    ? this._getParameterValue(dateToStringUTC(value))
+                    : this._getParameterValue(value.toISOString());
             } else if (Buffer.isBuffer(value)) {
                 value = this._getParameterValue('\\x' + value.toString('hex'));
             } else {
