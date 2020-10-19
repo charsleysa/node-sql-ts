@@ -1,10 +1,12 @@
 'use strict';
 
 import * as Harness from './support';
+import { Sql } from '../../lib';
 const user = Harness.defineUserTable();
+const instance = new Sql('postgres');
 
 Harness.test({
-    query: user.select(user.literal('foo'), user.name, user.literal('123').as('onetwothree')),
+    query: user.select(instance.literal('foo'), user.name, instance.literal('123').as('onetwothree')),
     pg: {
         text: 'SELECT foo, "user"."name", 123 AS "onetwothree" FROM "user"',
         string: 'SELECT foo, "user"."name", 123 AS "onetwothree" FROM "user"'
@@ -25,7 +27,7 @@ Harness.test({
 });
 
 Harness.test({
-    query: user.select().where(user.literal('foo = bar')),
+    query: user.select().where(instance.literal('foo = bar')),
     pg: {
         text: 'SELECT "user".* FROM "user" WHERE foo = bar',
         string: 'SELECT "user".* FROM "user" WHERE foo = bar'
@@ -48,8 +50,8 @@ Harness.test({
 // A real world example: "How many records does page 3 have?"
 // This could be less than 10 (the limit) if we are on the last page.
 const subquery = user
-    .subQuery('subquery_for_count')
-    .select(user.literal(1).as('count_column'))
+    .subQuery<{ count_column: number }>('subquery_for_count')
+    .select(instance.literal(1).as('count_column'))
     .limit(10)
     .offset(20);
 

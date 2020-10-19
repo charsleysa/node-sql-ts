@@ -52,7 +52,7 @@ import {
     WhereNode
 } from '.';
 import { Column } from '../column';
-import { INodeable, instanceofINodeable } from '../nodeable';
+import { INodeable, instanceofINodeable, PartialNodeable } from '../nodeable';
 import { Table } from '../table';
 
 // get the first element of an arguments if it is an array, else return arguments as an array
@@ -69,7 +69,6 @@ export class Query<T> extends Node {
     public table: Table<T>;
     public nodes: Node[] = [];
     public alias?: string;
-    public join?: (other: any) => JoinNode;
     private whereClause?: WhereNode;
     private insertClause?: InsertNode;
     private replaceClause?: ReplaceNode;
@@ -120,9 +119,12 @@ export class Query<T> extends Node {
                 col.name = name;
                 col.property = name;
                 col.table = this as any;
-                if (((this as unknown) as SubQuery<T>)[name] === undefined) {
-                    ((this as unknown) as SubQuery<T>)[name] = col;
+                col.star = undefined;
+                const subQuery = (this as unknown as SubQuery<T, any>);
+                if (subQuery[name] === undefined) {
+                    subQuery[name] = col;
                 }
+                subQuery.columns.push(col);
             }
         }
         return this;
@@ -290,7 +292,7 @@ export class Query<T> extends Node {
         }
     }
 
-    public update(object: Partial<T>): this {
+    public update(object: PartialNodeable<T>): this {
         const update = new UpdateNode();
         Object.keys(object).forEach((key) => {
             const col = this.table.get(key);
@@ -370,9 +372,11 @@ export class Query<T> extends Node {
         return this.add(new ForShareNode());
     }
 
-    public create(indexName: string): this | CreateIndexNode {
+    public create(): this
+    public create(indexName: string): CreateIndexNode
+    public create(indexName?: string): this | CreateIndexNode {
         if (this.indexesClause) {
-            const createIndex = new CreateIndexNode(this.table, indexName);
+            const createIndex = new CreateIndexNode(this.table, indexName!);
             this.add(createIndex);
             return createIndex;
         } else {
@@ -380,6 +384,9 @@ export class Query<T> extends Node {
         }
     }
 
+    public drop(): this;
+    public drop(indexName: string): DropIndexNode;
+    public drop(...columns: Column<unknown>[]): DropIndexNode;
     public drop(): this | DropIndexNode {
         if (this.indexesClause) {
             const args = sliced(arguments);
@@ -492,11 +499,11 @@ export class Query<T> extends Node {
         return this;
     }
 
-    public limit(count: any): this {
+    public limit(count: unknown): this {
         return this.add(new ModifierNode(this, 'LIMIT', count));
     }
 
-    public offset(count: any): this {
+    public offset(count: unknown): this {
         return this.add(new ModifierNode(this, 'OFFSET', count));
     }
 
@@ -574,4 +581,12 @@ extend(Query.prototype, AliasNode.AliasMixin);
 
 export interface Query<T> extends IValueExpressionMixinBase, IAliasMixin {}
 
-export type SubQuery<T> = Query<T> & { [key: string]: Column<unknown> };
+type SubQueryExtensions<T, C extends object> = {
+    join: (other: INodeable) => JoinNode;
+} & {
+    columns: Column<unknown>[]
+} & {
+    [P in keyof C]: Column<C[P]>
+};
+
+export type SubQuery<T, C extends object> = Query<T> & SubQueryExtensions<T, C>;

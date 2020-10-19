@@ -5,8 +5,8 @@ import fromPairs from 'lodash/fromPairs';
 import { Column } from './column';
 import { ColumnDefinition, TableDefinition } from './configTypes';
 import { leftJoin } from './joiner';
-import { ColumnNode, ForeignKeyNode, JoinNode, LiteralNode, Node, OrderByValueNode, Query, SubQuery, TableNode } from './node';
-import { INodeable } from './nodeable';
+import { ColumnNode, DropIndexNode, ForeignKeyNode, JoinNode, LiteralNode, Node, OrderByValueNode, Query, SubQuery, TableNode } from './node';
+import { INodeable, PartialNodeable } from './nodeable';
 import { Sql } from './sql';
 
 export type TableWithColumns<T> = Table<T> & { [Name in NonNullable<keyof T>]: Column<T[Name]> };
@@ -175,9 +175,6 @@ export class Table<T> implements INodeable {
         }
         return new Column({ table: this, star: true });
     }
-    public literal(literal: any): LiteralNode {
-        return new LiteralNode(literal);
-    }
     public count(alias?: string): ColumnNode {
         const name = this.alias || this.tableName;
         const col: Column<unknown> = new Column({ table: this, star: true });
@@ -194,14 +191,15 @@ export class Table<T> implements INodeable {
         }
         return query;
     }
-    public subQuery(alias?: string): SubQuery<T> {
+    public subQuery<C extends object>(alias?: string): SubQuery<T, C> {
         // create the query and pass it off
-        const query = new Query<T>(this, true);
+        const query = new Query<T>(this, true) as SubQuery<T, C>;
+        query.columns = [];
         query.alias = alias;
-        query.join = (other: any) => {
+        query.join = function(this: SubQuery<T, C>, other: INodeable) {
             return new JoinNode('INNER', this.toNode(), other.toNode());
-        };
-        return query as SubQuery<T>;
+        }
+        return query;
     }
     public insert(object: Column<unknown>[] | Column<unknown>): Query<T>;
     public insert(object: PartialNodeable<T>[] | PartialNodeable<T>): Query<T>;
@@ -254,45 +252,82 @@ export class Table<T> implements INodeable {
         return query;
     }
     public indexes(): IndexQuery {
-        return (new Query<T>(this).indexes() as unknown) as IndexQuery;
+        return new Query<T>(this).indexes() as IndexQuery;
     }
-}
-
-const queryMethods = ['alter', 'create', 'delete', 'drop', 'from', 'limit', 'offset', 'or', 'order', 'truncate', 'update', 'where'];
-
-queryMethods.forEach((method) => {
-    (Table.prototype as any)[method] = function(this: Table<unknown>, ...args: any[]) {
+    public alter(): Query<T> {
         const query = new Query(this);
-        (query as any)[method].apply(query, args);
+        query.alter();
         return query;
-    };
-});
-
-type PartialNodeable<T> = { [P in keyof T]?: T[P] | INodeable | Buffer };
-
-export interface Table<T> {
-    alter(): Query<T>;
-    create(): Query<T>;
-    delete(table: Table<unknown>[] | Table<unknown> | Table<T> | Partial<T>): Query<T>;
-    delete(): Query<T>;
-    drop(): Query<T>;
-    from(table: Table<unknown>[] | Table<unknown> | Table<T> | JoinNode): Query<T>;
-    from(...tables: Table<unknown>[]): Query<T>;
-    limit(count: unknown): Query<T>;
-    offset(count: unknown): Query<T>;
-    or(object: Partial<T> | Node | string): Query<T>;
-    order(node: INodeable[] | INodeable): Query<T>;
-    order(...nodes: INodeable[]): Query<T>;
-    truncate(): Query<T>;
-    update(object: PartialNodeable<T>): Query<T>;
-    where(object: Partial<T> | Node[] | Node | string): Query<T>;
-    where(...nodes: Node[]): Query<T>;
+    }
+    public create(): Query<T> {
+        const query = new Query(this);
+        query.create();
+        return query;
+    }
+    public delete(table: Table<unknown>[] | Table<unknown> | Table<T> | Partial<T>): Query<T>;
+    public delete(): Query<T>;
+    public delete(arg?: Table<unknown>[] | Table<unknown> | Table<T> | Partial<T>): Query<T> {
+        const query = new Query(this);
+        query.delete(arg as any);
+        return query;
+    }
+    public drop(): Query<T> {
+        const query = new Query(this);
+        query.drop();
+        return query;
+    }
+    public from(table: Table<unknown>[] | Table<unknown> | Table<T> | JoinNode): Query<T>;
+    public from(...tables: Table<unknown>[]): Query<T>;
+    public from(...args: (Table<unknown>[] | Table<unknown> | Table<T> | JoinNode)[]): Query<T> {
+        const query = new Query(this);
+        query.from(...args as any);
+        return query;
+    }
+    public limit(count: unknown): Query<T> {
+        const query = new Query(this);
+        query.limit(count);
+        return query;
+    }
+    public offset(count: unknown): Query<T> {
+        const query = new Query(this);
+        query.offset(count);
+        return query;
+    }
+    public or(object: Partial<T> | Node | string): Query<T> {
+        const query = new Query(this);
+        query.or(object);
+        return query;
+    }
+    public order(node: INodeable[] | INodeable): Query<T>;
+    public order(...nodes: INodeable[]): Query<T>;
+    public order(...args: (INodeable[] | INodeable)[]): Query<T> {
+        const query = new Query(this);
+        query.order(...args as any);
+        return query;
+    }
+    public truncate(): Query<T> {
+        const query = new Query(this);
+        query.truncate();
+        return query;
+    }
+    public update(object: PartialNodeable<T>): Query<T> {
+        const query = new Query(this);
+        query.update(object);
+        return query;
+    }
+    public where(object: Partial<T> | Node[] | Node | string): Query<T>;
+    public where(...nodes: Node[]): Query<T>;
+    public where(...args: (Partial<T> | Node[] | Node | string)[]): Query<T> {
+        const query = new Query(this);
+        query.where(...args as any);
+        return query;
+    }
 }
 
 interface IndexQuery {
     create(indexName?: string): IndexCreationQuery;
-    drop(indexName: string): Node;
-    drop(...columns: Column<unknown>[]): Node;
+    drop(indexName: string): DropIndexNode;
+    drop(...columns: Column<unknown>[]): DropIndexNode;
 }
 
 interface IndexCreationQuery extends Node {

@@ -9,7 +9,7 @@ import * as functions from './functions';
 import { ArrayCallNode, FunctionCallNode, IntervalNode, LiteralNode, Query } from './node';
 import { Table, TableWithColumns } from './table';
 
-class Sql {
+export class Sql {
     public functions: functions.StandardFunctions;
     public dialect: any;
     public dialectName!: SQLDialects;
@@ -77,5 +77,3 @@ class Sql {
         return new LiteralNode(literal);
     }
 }
-
-export { Sql, Table };

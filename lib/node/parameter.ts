@@ -5,7 +5,7 @@ import { INodeable, instanceofINodeable } from '../nodeable';
 
 export class ParameterNode extends Node {
     // wrap a value as a parameter node if value is not already a node
-    public static getNodeOrParameterNode(value?: INodeable) {
+    public static getNodeOrParameterNode(value?: INodeable | unknown) {
         if (value && instanceofINodeable(value)) {
             // use toNode
             return value.toNode();

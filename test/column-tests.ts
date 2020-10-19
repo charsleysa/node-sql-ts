@@ -46,7 +46,7 @@ suite('column', function() {
             });
 
             test('in subquery with min', function() {
-                const subquery = table.subQuery('subTable').select(table.id.min().as('subId'));
+                const subquery = table.subQuery<{ subId: number }>('subTable').select(table.id.min().as('subId'));
                 const col = subquery.subId.toQuery().text;
                 strictEqual(col, '"subTable"."subId"');
             });

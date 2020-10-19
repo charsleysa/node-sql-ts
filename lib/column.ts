@@ -36,9 +36,7 @@ export class Column<T> implements INodeable {
     public name: string;
     public property?: string;
     public table?: Table<unknown>;
-    public asc: this;
     public alias?: string;
-    public desc: OrderByValueNode;
     public dataType?: string;
     // tslint:disable-next-line:variable-name
     public _value: any;
@@ -69,12 +67,7 @@ export class Column<T> implements INodeable {
         this.property = config.property;
         this.star = config.star;
         this.table = config.table;
-        this.asc = this;
         this.alias = undefined;
-        this.desc = new OrderByValueNode({
-            direction: new TextNode('DESC'),
-            value: this.toNode()
-        });
         this.isConstant = config.isConstant;
         this.constantValue = config.constantValue;
         this.dataType = config.dataType;
@@ -102,6 +95,17 @@ export class Column<T> implements INodeable {
         const context = contextify(this);
         context.alias = alias;
         return new ColumnNode(context);
+    }
+    public asc(): OrderByValueNode {
+        return new OrderByValueNode({
+            value: this.toNode()
+        })
+    }
+    public desc(): OrderByValueNode {
+        return new OrderByValueNode({
+            direction: new TextNode('DESC'),
+            value: this.toNode()
+        })
     }
     public arrayAgg(alias?: string): ColumnNode {
         const context = contextify(this);
@@ -146,7 +150,7 @@ extend(Column.prototype, valueExpressionMixin());
 const contextify = <T>(base: Column<T>): Column<T> => {
     const context = Object.create(Column.prototype);
     Object.keys(base).forEach((key) => {
-        context[key] = (base as any)[key];
+        context[key] = base[key as keyof Column<T>];
     });
     return context;
 };

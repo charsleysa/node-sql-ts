@@ -163,7 +163,7 @@ Harness.test({
 });
 
 const subposts = post
-    .subQuery('subposts')
+    .subQuery<{ content?: string, subpostUserId: number }>('subposts')
     .select(post.content, post.userId.as('subpostUserId'))
     .from(post);
 

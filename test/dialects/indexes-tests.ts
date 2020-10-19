@@ -148,7 +148,7 @@ Harness.test({
     query: post
         .indexes()
         .create()
-        .on(post.userId, post.id.desc),
+        .on(post.userId, post.id.desc()),
     pg: {
         text: 'CREATE INDEX "post_id_userId" ON "post" ("userId","id" DESC)',
         string: 'CREATE INDEX "post_id_userId" ON "post" ("userId","id" DESC)'

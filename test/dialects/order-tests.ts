@@ -31,7 +31,7 @@ Harness.test({
 });
 
 Harness.test({
-    query: post.select(post.content).order(post.content, post.userId.desc),
+    query: post.select(post.content).order(post.content, post.userId.desc()),
     pg: {
         text: 'SELECT "post"."content" FROM "post" ORDER BY "post"."content", "post"."userId" DESC',
         string: 'SELECT "post"."content" FROM "post" ORDER BY "post"."content", "post"."userId" DESC'
@@ -56,7 +56,7 @@ Harness.test({
 });
 
 Harness.test({
-    query: post.select(post.content).order(post.content.asc, post.userId.desc),
+    query: post.select(post.content).order(post.content.asc(), post.userId.desc()),
     pg: {
         text: 'SELECT "post"."content" FROM "post" ORDER BY "post"."content", "post"."userId" DESC',
         string: 'SELECT "post"."content" FROM "post" ORDER BY "post"."content", "post"."userId" DESC'
@@ -81,7 +81,7 @@ Harness.test({
 });
 
 Harness.test({
-    query: post.select(post.content).order([post.content, post.userId.desc]),
+    query: post.select(post.content).order([post.content, post.userId.desc()]),
     pg: {
         text: 'SELECT "post"."content" FROM "post" ORDER BY "post"."content", "post"."userId" DESC',
         string: 'SELECT "post"."content" FROM "post" ORDER BY "post"."content", "post"."userId" DESC'
@@ -109,7 +109,7 @@ Harness.test({
     query: post
         .select(post.content)
         .order(post.content)
-        .order(post.userId.desc),
+        .order(post.userId.desc()),
     pg: {
         text: 'SELECT "post"."content" FROM "post" ORDER BY "post"."content", "post"."userId" DESC',
         string: 'SELECT "post"."content" FROM "post" ORDER BY "post"."content", "post"."userId" DESC'
@@ -259,7 +259,7 @@ Harness.test({
 });
 
 Harness.test({
-    query: post.select(post.content).order(post.content.desc),
+    query: post.select(post.content).order(post.content.desc()),
     pg: {
         text: 'SELECT "post"."content" FROM "post" ORDER BY "post"."content" DESC NULLS LAST',
         string: 'SELECT "post"."content" FROM "post" ORDER BY "post"."content" DESC NULLS LAST',
@@ -315,7 +315,7 @@ Harness.test({
 });
 
 Harness.test({
-    query: post.select(post.content).order(post.content.asc),
+    query: post.select(post.content).order(post.content.asc()),
     pg: {
         text: 'SELECT "post"."content" FROM "post" ORDER BY "post"."content" NULLS FIRST',
         string: 'SELECT "post"."content" FROM "post" ORDER BY "post"."content" NULLS FIRST',

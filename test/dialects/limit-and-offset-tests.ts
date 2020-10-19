@@ -10,7 +10,7 @@ Harness.test({
     query: user
         .select(user.star())
         .from(user)
-        .order(user.name.asc)
+        .order(user.name.asc())
         .limit(1),
     pg: {
         text: 'SELECT "user".* FROM "user" ORDER BY "user"."name" LIMIT $1',
@@ -35,7 +35,7 @@ Harness.test({
     query: user
         .select(user.star())
         .from(user)
-        .order(user.name.asc)
+        .order(user.name.asc())
         .limit(3)
         .offset(6),
     pg: {
@@ -57,7 +57,7 @@ Harness.test({
     query: user
         .select(user.star())
         .from(user)
-        .order(user.name.asc)
+        .order(user.name.asc())
         .limit(3)
         .offset(6),
     mssql: {
@@ -71,7 +71,7 @@ Harness.test({
     query: user
         .select(user.star())
         .from(user)
-        .order(user.name.asc)
+        .order(user.name.asc())
         .offset(10),
     pg: {
         text: 'SELECT "user".* FROM "user" ORDER BY "user"."name" OFFSET $1',

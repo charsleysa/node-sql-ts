@@ -228,7 +228,7 @@ Harness.test({
 });
 
 const limitUsers = user
-    .subQuery('limit-users')
+    .subQuery<{ id: string, name: string }>('limit-users')
     .select(user.id, user.name)
     .from(user)
     .order(user.name)
@@ -267,4 +267,80 @@ Harness.test({
             'SELECT "limit-users"."name", "post"."tags" FROM (SELECT "user"."id", "user"."name" FROM "user" ORDER BY "user"."name" OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY) "limit-users" LEFT JOIN "post" ON ("post"."userId" = "limit-users"."id")'
     },
     params: [10, 10]
+});
+
+Harness.test({
+    query: instance.select(limitUsers.star()).from(limitUsers.join(post).on(post.userId.equals(limitUsers.id))),
+    pg: {
+        text:
+            'SELECT "limit-users".* FROM (SELECT "user"."id", "user"."name" FROM "user" ORDER BY "user"."name" LIMIT $1 OFFSET $2) "limit-users" INNER JOIN "post" ON ("post"."userId" = "limit-users"."id")',
+        string:
+            'SELECT "limit-users".* FROM (SELECT "user"."id", "user"."name" FROM "user" ORDER BY "user"."name" LIMIT 10 OFFSET 10) "limit-users" INNER JOIN "post" ON ("post"."userId" = "limit-users"."id")'
+    },
+    sqlite: {
+        text:
+            'SELECT "limit-users".* FROM (SELECT "user"."id", "user"."name" FROM "user" ORDER BY "user"."name" LIMIT $1 OFFSET $2) "limit-users" INNER JOIN "post" ON ("post"."userId" = "limit-users"."id")',
+        string:
+            'SELECT "limit-users".* FROM (SELECT "user"."id", "user"."name" FROM "user" ORDER BY "user"."name" LIMIT 10 OFFSET 10) "limit-users" INNER JOIN "post" ON ("post"."userId" = "limit-users"."id")'
+    },
+    mysql: {
+        text:
+            'SELECT `limit-users`.* FROM (SELECT `user`.`id`, `user`.`name` FROM `user` ORDER BY `user`.`name` LIMIT ? OFFSET ?) `limit-users` INNER JOIN `post` ON (`post`.`userId` = `limit-users`.`id`)',
+        string:
+            'SELECT `limit-users`.* FROM (SELECT `user`.`id`, `user`.`name` FROM `user` ORDER BY `user`.`name` LIMIT 10 OFFSET 10) `limit-users` INNER JOIN `post` ON (`post`.`userId` = `limit-users`.`id`)'
+    },
+    mssql: {
+        text:
+            'SELECT [limit-users].* FROM (SELECT [user].[id], [user].[name] FROM [user] ORDER BY [user].[name] OFFSET @1 ROWS FETCH NEXT @2 ROWS ONLY) [limit-users] INNER JOIN [post] ON ([post].[userId] = [limit-users].[id])',
+        string:
+            'SELECT [limit-users].* FROM (SELECT [user].[id], [user].[name] FROM [user] ORDER BY [user].[name] OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY) [limit-users] INNER JOIN [post] ON ([post].[userId] = [limit-users].[id])'
+    },
+    oracle: {
+        text:
+            'SELECT "limit-users".* FROM (SELECT "user"."id", "user"."name" FROM "user" ORDER BY "user"."name" OFFSET :2 ROWS FETCH NEXT :1 ROWS ONLY) "limit-users" INNER JOIN "post" ON ("post"."userId" = "limit-users"."id")',
+        string:
+            'SELECT "limit-users".* FROM (SELECT "user"."id", "user"."name" FROM "user" ORDER BY "user"."name" OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY) "limit-users" INNER JOIN "post" ON ("post"."userId" = "limit-users"."id")'
+    },
+    params: [10, 10]
+});
+
+const groupedUsersByName = user
+    .subQuery<{ name: string, countForName: number }>('grouped-users')
+    .select(user.name, user.count().as('countForName'))
+    .from(user)
+    .group(user.name)
+    .order(user.name);
+Harness.test({
+    query: instance.select(groupedUsersByName.name, groupedUsersByName.countForName).from(groupedUsersByName),
+    pg: {
+        text:
+            'SELECT "grouped-users"."name", "grouped-users"."countForName" FROM (SELECT "user"."name", COUNT("user".*) AS "countForName" FROM "user" GROUP BY "user"."name" ORDER BY "user"."name") "grouped-users"',
+        string:
+            'SELECT "grouped-users"."name", "grouped-users"."countForName" FROM (SELECT "user"."name", COUNT("user".*) AS "countForName" FROM "user" GROUP BY "user"."name" ORDER BY "user"."name") "grouped-users"'
+    },
+    sqlite: {
+        text:
+            'SELECT "grouped-users"."name", "grouped-users"."countForName" FROM (SELECT "user"."name", COUNT("user".*) AS "countForName" FROM "user" GROUP BY "user"."name" ORDER BY "user"."name") "grouped-users"',
+        string:
+            'SELECT "grouped-users"."name", "grouped-users"."countForName" FROM (SELECT "user"."name", COUNT("user".*) AS "countForName" FROM "user" GROUP BY "user"."name" ORDER BY "user"."name") "grouped-users"'
+    },
+    mysql: {
+        text:
+            'SELECT `grouped-users`.`name`, `grouped-users`.`countForName` FROM (SELECT `user`.`name`, COUNT(*) AS `countForName` FROM `user` GROUP BY `user`.`name` ORDER BY `user`.`name`) `grouped-users`',
+        string:
+            'SELECT `grouped-users`.`name`, `grouped-users`.`countForName` FROM (SELECT `user`.`name`, COUNT(*) AS `countForName` FROM `user` GROUP BY `user`.`name` ORDER BY `user`.`name`) `grouped-users`'
+    },
+    mssql: {
+        text:
+            'SELECT [grouped-users].[name], [grouped-users].[countForName] FROM (SELECT [user].[name], COUNT(*) AS [countForName] FROM [user] GROUP BY [user].[name] ORDER BY [user].[name]) [grouped-users]',
+        string:
+            'SELECT [grouped-users].[name], [grouped-users].[countForName] FROM (SELECT [user].[name], COUNT(*) AS [countForName] FROM [user] GROUP BY [user].[name] ORDER BY [user].[name]) [grouped-users]'
+    },
+    oracle: {
+        text:
+            'SELECT "grouped-users"."name", "grouped-users"."countForName" FROM (SELECT "user"."name", COUNT(*) "countForName" FROM "user" GROUP BY "user"."name" ORDER BY "user"."name") "grouped-users"',
+        string:
+            'SELECT "grouped-users"."name", "grouped-users"."countForName" FROM (SELECT "user"."name", COUNT(*) "countForName" FROM "user" GROUP BY "user"."name" ORDER BY "user"."name") "grouped-users"'
+    },
+    params: []
 });
