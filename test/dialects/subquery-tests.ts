@@ -5,6 +5,7 @@ import { Sql } from '../../lib';
 const customer = Harness.defineCustomerTable();
 const post = Harness.definePostTable();
 const user = Harness.defineUserTable();
+const customerAlias = Harness.defineCustomerAliasTable();
 const instance = new Sql('postgres');
 
 Harness.test({
@@ -304,43 +305,43 @@ Harness.test({
     params: [10, 10]
 });
 
-const groupedUsersByName = user
-    .subQuery<{ name: string, countForName: number }>('grouped-users')
-    .select(user.name, user.count().as('countForName'))
-    .from(user)
-    .group(user.name)
-    .order(user.name);
+const groupedCustomersByName = customerAlias
+    .subQuery<{ name_alias: string, countForName: number }>('grouped-customers')
+    .select(customerAlias.name_alias, customerAlias.count().as('countForName'))
+    .from(customerAlias)
+    .group(customerAlias.name_alias)
+    .order(customerAlias.name_alias);
 Harness.test({
-    query: instance.select(groupedUsersByName.name, groupedUsersByName.countForName).from(groupedUsersByName),
+    query: instance.select(groupedCustomersByName.name_alias, groupedCustomersByName.countForName).from(groupedCustomersByName),
     pg: {
         text:
-            'SELECT "grouped-users"."name", "grouped-users"."countForName" FROM (SELECT "user"."name", COUNT("user".*) AS "countForName" FROM "user" GROUP BY "user"."name" ORDER BY "user"."name") "grouped-users"',
+            'SELECT "grouped-customers"."name_alias", "grouped-customers"."countForName" FROM (SELECT "customer"."name" AS "name_alias", COUNT("customer".*) AS "countForName" FROM "customer" GROUP BY "customer"."name" ORDER BY "customer"."name") "grouped-customers"',
         string:
-            'SELECT "grouped-users"."name", "grouped-users"."countForName" FROM (SELECT "user"."name", COUNT("user".*) AS "countForName" FROM "user" GROUP BY "user"."name" ORDER BY "user"."name") "grouped-users"'
+            'SELECT "grouped-customers"."name_alias", "grouped-customers"."countForName" FROM (SELECT "customer"."name" AS "name_alias", COUNT("customer".*) AS "countForName" FROM "customer" GROUP BY "customer"."name" ORDER BY "customer"."name") "grouped-customers"'
     },
     sqlite: {
         text:
-            'SELECT "grouped-users"."name", "grouped-users"."countForName" FROM (SELECT "user"."name", COUNT("user".*) AS "countForName" FROM "user" GROUP BY "user"."name" ORDER BY "user"."name") "grouped-users"',
+            'SELECT "grouped-customers"."name_alias", "grouped-customers"."countForName" FROM (SELECT "customer"."name" AS "name_alias", COUNT("customer".*) AS "countForName" FROM "customer" GROUP BY "customer"."name" ORDER BY "customer"."name") "grouped-customers"',
         string:
-            'SELECT "grouped-users"."name", "grouped-users"."countForName" FROM (SELECT "user"."name", COUNT("user".*) AS "countForName" FROM "user" GROUP BY "user"."name" ORDER BY "user"."name") "grouped-users"'
+            'SELECT "grouped-customers"."name_alias", "grouped-customers"."countForName" FROM (SELECT "customer"."name" AS "name_alias", COUNT("customer".*) AS "countForName" FROM "customer" GROUP BY "customer"."name" ORDER BY "customer"."name") "grouped-customers"'
     },
     mysql: {
         text:
-            'SELECT `grouped-users`.`name`, `grouped-users`.`countForName` FROM (SELECT `user`.`name`, COUNT(*) AS `countForName` FROM `user` GROUP BY `user`.`name` ORDER BY `user`.`name`) `grouped-users`',
+            'SELECT `grouped-customers`.`name_alias`, `grouped-customers`.`countForName` FROM (SELECT `customer`.`name` AS `name_alias`, COUNT(*) AS `countForName` FROM `customer` GROUP BY `customer`.`name` ORDER BY `customer`.`name`) `grouped-customers`',
         string:
-            'SELECT `grouped-users`.`name`, `grouped-users`.`countForName` FROM (SELECT `user`.`name`, COUNT(*) AS `countForName` FROM `user` GROUP BY `user`.`name` ORDER BY `user`.`name`) `grouped-users`'
+            'SELECT `grouped-customers`.`name_alias`, `grouped-customers`.`countForName` FROM (SELECT `customer`.`name` AS `name_alias`, COUNT(*) AS `countForName` FROM `customer` GROUP BY `customer`.`name` ORDER BY `customer`.`name`) `grouped-customers`'
     },
     mssql: {
         text:
-            'SELECT [grouped-users].[name], [grouped-users].[countForName] FROM (SELECT [user].[name], COUNT(*) AS [countForName] FROM [user] GROUP BY [user].[name] ORDER BY [user].[name]) [grouped-users]',
+            'SELECT [grouped-customers].[name_alias], [grouped-customers].[countForName] FROM (SELECT [customer].[name] AS [name_alias], COUNT(*) AS [countForName] FROM [customer] GROUP BY [customer].[name] ORDER BY [customer].[name]) [grouped-customers]',
         string:
-            'SELECT [grouped-users].[name], [grouped-users].[countForName] FROM (SELECT [user].[name], COUNT(*) AS [countForName] FROM [user] GROUP BY [user].[name] ORDER BY [user].[name]) [grouped-users]'
+            'SELECT [grouped-customers].[name_alias], [grouped-customers].[countForName] FROM (SELECT [customer].[name] AS [name_alias], COUNT(*) AS [countForName] FROM [customer] GROUP BY [customer].[name] ORDER BY [customer].[name]) [grouped-customers]'
     },
     oracle: {
         text:
-            'SELECT "grouped-users"."name", "grouped-users"."countForName" FROM (SELECT "user"."name", COUNT(*) "countForName" FROM "user" GROUP BY "user"."name" ORDER BY "user"."name") "grouped-users"',
+            'SELECT "grouped-customers"."name_alias", "grouped-customers"."countForName" FROM (SELECT "customer"."name" "name_alias", COUNT(*) "countForName" FROM "customer" GROUP BY "customer"."name" ORDER BY "customer"."name") "grouped-customers"',
         string:
-            'SELECT "grouped-users"."name", "grouped-users"."countForName" FROM (SELECT "user"."name", COUNT(*) "countForName" FROM "user" GROUP BY "user"."name" ORDER BY "user"."name") "grouped-users"'
+            'SELECT "grouped-customers"."name_alias", "grouped-customers"."countForName" FROM (SELECT "customer"."name" "name_alias", COUNT(*) "countForName" FROM "customer" GROUP BY "customer"."name" ORDER BY "customer"."name") "grouped-customers"'
     },
     params: []
 });

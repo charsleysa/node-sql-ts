@@ -114,7 +114,7 @@ export class Query<T> extends Node {
         // if this is a subquery then add reference to this column
         if (this.type === 'SUBQUERY') {
             for (const node of select.nodes as ColumnNode[]) {
-                const name = node.alias || node.name;
+                const name = node.alias || node.property || node.name;
                 const col = new Column(node as any);
                 col.name = name;
                 col.property = name;
