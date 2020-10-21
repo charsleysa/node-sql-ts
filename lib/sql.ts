@@ -6,7 +6,7 @@ import { Column } from './column';
 import { ColumnDefinition, SQLDialects, TableDefinition } from './configTypes';
 import { DEFAULT_DIALECT, getDialect } from './dialect';
 import * as functions from './functions';
-import { ArrayCallNode, FunctionCallNode, IntervalNode, LiteralNode, Query } from './node';
+import { ArrayCallNode, FunctionCallNode, RowCallNode, IntervalNode, LiteralNode, Query } from './node';
 import { Table, TableWithColumns } from './table';
 
 export class Sql {
@@ -42,6 +42,11 @@ export class Sql {
     public array(...args: any[]) {
         const arrayCall = new ArrayCallNode(sliced(args));
         return arrayCall;
+    }
+    // Returns a bracketed call creator literal
+    public row(...args: any[]) {
+        const rowCall = new RowCallNode(sliced(args));
+        return rowCall;
     }
     // Returns a select statement
     public select(...args: any[]) {

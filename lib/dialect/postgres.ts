@@ -59,6 +59,7 @@ import {
     ReplaceNode,
     RestrictNode,
     ReturningNode,
+    RowCallNode,
     SelectNode,
     SliceNode,
     TableNode,
@@ -328,6 +329,8 @@ export class Postgres extends Dialect {
                 return this.visitFunctionCall(node as FunctionCallNode);
             case 'ARRAY CALL':
                 return this.visitArrayCall(node as ArrayCallNode);
+            case 'ROW CALL':
+                return this.visitRowCall(node as RowCallNode);
             case 'CREATE VIEW':
                 return this.visitCreateView(node as CreateViewNode);
             case 'INTERVAL':
@@ -1028,6 +1031,10 @@ export class Postgres extends Dialect {
     }
     public visitArrayCall(arrayCallNode: ArrayCallNode): string[] {
         const txt = `ARRAY[${arrayCallNode.nodes.map(this.visit.bind(this)).join(', ')}]`;
+        return [txt];
+    }
+    public visitRowCall(rowCallNode: RowCallNode): string[] {
+        const txt = `(${rowCallNode.nodes.map(this.visit.bind(this)).join(', ')})`;
         return [txt];
     }
     public visitParameter(parameterNode: ParameterNode): string[] {

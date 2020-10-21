@@ -37,6 +37,7 @@ export * from './column';
 export * from './foreignKey';
 export * from './functionCall';
 export * from './arrayCall';
+export * from './rowCall';
 export * from './parameter';
 export * from './default';
 export * from './addColumn';
