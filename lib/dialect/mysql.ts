@@ -119,6 +119,12 @@ export class Mysql extends Postgres {
         const tableName = this.visit(this.queryNode!.table.toNode())[0];
         return [`SHOW INDEX FROM ${tableName}`];
     }
+    public visitIfNotExistsIndex(): string[] {
+        throw new Error('MySQL does not allow ifNotExists clause on indexes.');
+    }
+    public visitIfExistsIndex(): string[] {
+        throw new Error('MySQL does not allow ifExists clause on indexes.');
+    }
     public visitBinary(binaryNode: BinaryNode): string[] {
         if (binaryNode.operator === '@@') {
             return [`(MATCH ${this.visit(binaryNode.left)} AGAINST ${this.visit(binaryNode.right)})`];

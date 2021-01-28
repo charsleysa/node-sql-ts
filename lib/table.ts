@@ -330,7 +330,8 @@ interface IndexQuery {
     drop(...columns: Column<unknown>[]): DropIndexNode;
 }
 
-interface IndexCreationQuery extends Node {
+export interface IndexCreationQuery extends Node {
+    ifNotExists(): IndexCreationQuery;
     unique(): IndexCreationQuery;
     using(name: string): IndexCreationQuery;
     on(...columns: (Column<unknown> | OrderByValueNode)[]): IndexCreationQuery;

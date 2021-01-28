@@ -3,9 +3,9 @@
 import sliced from 'sliced';
 import { Node } from '.';
 import { Column } from '../column';
-import { Table } from '../table';
+import { IndexCreationQuery, Table } from '../table';
 
-export class CreateIndexNode extends Node {
+export class CreateIndexNode extends Node implements IndexCreationQuery {
     public table: Table<unknown>;
     public options: {
         indexName: string;
@@ -13,13 +13,14 @@ export class CreateIndexNode extends Node {
         type?: string;
         algorithm?: string;
         parser?: string;
+        ifNotExists: boolean;
     };
 
     constructor(table: Table<unknown>, indexName: string) {
         super('CREATE INDEX');
 
         this.table = table;
-        this.options = { indexName, columns: [] };
+        this.options = { indexName, columns: [], ifNotExists: false };
     }
 
     public unique() {
@@ -63,5 +64,10 @@ export class CreateIndexNode extends Node {
         }
 
         return result;
+    }
+
+    public ifNotExists() {
+        this.options.ifNotExists = true;
+        return this;
     }
 }

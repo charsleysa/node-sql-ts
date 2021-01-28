@@ -1158,38 +1158,39 @@ export class Postgres extends Dialect {
             throw new Error('No columns defined!');
         }
         const tableName = this.visit(createIndexNode.table.toNode());
-        let result = ['CREATE'];
-        if (createIndexNode.options.type) {
-            result.push(createIndexNode.options.type.toUpperCase());
-        }
-        result = result.concat(['INDEX', this.quote(createIndexNode.indexName())]);
-        if (createIndexNode.options.algorithm) {
-            result.push('USING ' + createIndexNode.options.algorithm.toUpperCase());
-        }
-        result = result.concat([
+        const ifNotExists = createIndexNode.options?.ifNotExists ? this.visitIfNotExistsIndex() : []
+        const notEmpty = <T>(t: T | undefined): t is T => t !== undefined
+        return [
+            'CREATE',
+            createIndexNode.options?.type?.toUpperCase(),
+            'INDEX',
+            ...ifNotExists,
+            this.quote(createIndexNode.indexName()),
+            createIndexNode.options.algorithm ? 'USING ' + createIndexNode.options.algorithm.toUpperCase() : undefined,
             'ON',
             ...tableName,
-            '(' +
-                createIndexNode.options.columns.reduce(
-                    (res, col) => {
-                        const column = col.name ? col.name : col.value.name;
-                        const direction = col instanceof OrderByValueNode ? ` ${col.direction!.text}` : '';
-                        return res.concat(this.quote(column) + direction);
-                    },
-                    [] as string[]
-                ) +
-                ')'
-        ]);
-        if (createIndexNode.options.parser) {
-            result.push('WITH PARSER');
-            result.push(createIndexNode.options.parser);
-        }
-        return result;
+            '(' + createIndexNode.options.columns.reduce<string[]>((res, col) => {
+                const column = col.name ? col.name : col.value.name;
+                const direction = col instanceof OrderByValueNode ? ` ${col.direction!.text}` : '';
+                return res.concat(this.quote(column) + direction);
+            }, []) + ')',
+            createIndexNode.options.parser ? 'WITH PARSER' : undefined,
+            createIndexNode.options.parser,
+        ].filter(notEmpty);
+    }
+    public visitIfNotExistsIndex(): string[] {
+        return ['IF NOT EXISTS']
     }
     public visitDropIndex(dropIndexNode: DropIndexNode): string[] {
-        const result = ['DROP INDEX'];
-        result.push(this.quote(dropIndexNode.table.getSchema() || 'public') + '.' + this.quote(dropIndexNode.options.indexName));
-        return result;
+        const ifExists = dropIndexNode.options.ifExists ? this.visitIfExistsIndex() : []
+        return [
+            'DROP INDEX',
+            ...ifExists,
+            this.quote(dropIndexNode.table.getSchema() || 'public') + '.' + this.quote(dropIndexNode.options.indexName),
+        ]
+    }
+    public visitIfExistsIndex(): string[] {
+        return ['IF EXISTS']
     }
     public visitCreateView(createViewNode: CreateViewNode): string[] {
         const result = ['CREATE VIEW', this.quote(createViewNode.options.viewName), 'AS'];

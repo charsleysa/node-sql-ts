@@ -173,6 +173,35 @@ Harness.test({
 });
 
 Harness.test({
+    query: post
+        .indexes()
+        .create('mandatory_name')
+        .ifNotExists()
+        .on(post.userId, post.id.desc()),
+    pg: {
+        text: 'CREATE INDEX IF NOT EXISTS "mandatory_name" ON "post" ("userId","id" DESC)',
+        string: 'CREATE INDEX IF NOT EXISTS "mandatory_name" ON "post" ("userId","id" DESC)'
+    },
+    mysql: {
+        text: 'Feature does not exist in MySQL',
+        throws: true
+    },
+    sqlite: {
+        text: 'CREATE INDEX IF NOT EXISTS "mandatory_name" ON "post" ("userId","id" DESC)',
+        string: 'CREATE INDEX IF NOT EXISTS "mandatory_name" ON "post" ("userId","id" DESC)'
+    },
+    mssql: {
+        text: 'Feature does not exist in MSSQL',
+        throws: true
+    },
+    oracle: {
+        text: 'Feature does not exist in Oracle',
+        throws: true
+    },
+    params: []
+});
+
+Harness.test({
     query: post.indexes().create(),
     pg: {
         text: 'No columns defined!',
@@ -230,6 +259,27 @@ Harness.test({
     oracle: {
         text: 'DROP INDEX "post_id_userId"',
         string: 'DROP INDEX "post_id_userId"'
+    },
+    params: []
+});
+
+Harness.test({
+    query: post.indexes().drop(post.userId, post.id).ifExists(),
+    pg: {
+        text: 'DROP INDEX IF EXISTS "public"."post_id_userId"',
+        string: 'DROP INDEX IF EXISTS "public"."post_id_userId"'
+    },
+    mysql: {
+        text: 'Feature does not exist in MySQL',
+        throws: true
+    },
+    sqlite: {
+        text: 'DROP INDEX IF EXISTS "public"."post_id_userId"',
+        string: 'DROP INDEX IF EXISTS "public"."post_id_userId"'
+    },
+    oracle: {
+        text: 'Feature does not exist in Oracle',
+        throws: true
     },
     params: []
 });

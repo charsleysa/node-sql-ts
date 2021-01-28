@@ -6,7 +6,7 @@ import { Table } from '../table';
 
 export class DropIndexNode extends Node {
     public table: Table<unknown>;
-    public options: { indexName: string };
+    public options: { indexName: string, ifExists: boolean };
 
     constructor(table: Table<unknown>, indexName: string | string[] | Column<unknown>[]) {
         super('DROP INDEX');
@@ -21,6 +21,11 @@ export class DropIndexNode extends Node {
         }
 
         this.table = table;
-        this.options = { indexName };
+        this.options = { indexName, ifExists: false };
+    }
+
+    public ifExists(): DropIndexNode {
+        this.options.ifExists = true;
+        return this
     }
 }

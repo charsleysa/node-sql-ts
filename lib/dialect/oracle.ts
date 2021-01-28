@@ -241,6 +241,9 @@ export class Oracle extends Postgres {
         return [indexes];
     }
     public visitDropIndex(dropIndexNode: DropIndexNode): string[] {
+        if (dropIndexNode.options.ifExists) {
+            throw new Error('Oracle does not allow ifExists clause on indexes.');
+        }
         const result = ['DROP INDEX'];
         const schemaName = dropIndexNode.table.getSchema();
         if (schemaName) {
@@ -248,6 +251,9 @@ export class Oracle extends Postgres {
         }
         result.push(this.quote(dropIndexNode.options.indexName));
         return result;
+    }
+    public visitIfNotExistsIndex(): string[] {
+        throw new Error('Oracle does not allow ifNotExists clause on indexes.');
     }
     // Need to implement a special version of CASE since Oracle doesn't support
     //   CASE WHEN true THEN xxx END
