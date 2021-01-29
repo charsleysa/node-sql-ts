@@ -13,14 +13,14 @@ export class CreateIndexNode extends Node implements IndexCreationQuery {
         type?: string;
         algorithm?: string;
         parser?: string;
-        ifNotExists: boolean;
+        ifNotExists?: boolean;
     };
 
     constructor(table: Table<unknown>, indexName: string) {
         super('CREATE INDEX');
 
         this.table = table;
-        this.options = { indexName, columns: [], ifNotExists: false };
+        this.options = { indexName, columns: [] };
     }
 
     public unique() {
