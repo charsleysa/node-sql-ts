@@ -20,9 +20,9 @@
         "test": "TS_NODE_PROJECT='test/tsconfig.json' mocha",
         "lint": "tslint --project .",
         "tsc": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
-        "release:major": "npm run test && npm run tsc && npm version major -m \"Bump version\" && git push origin master --tags && npm publish",
-        "release:minor": "npm run test && npm run tsc && npm version minor -m \"Bump version\" && git push origin master --tags && npm publish",
-        "release:patch": "npm run test && npm run tsc && npm version patch -m \"Bump version\" && git push origin master --tags && npm publish"
+        "release:major": "npm run test && npm run tsc && npm version major -m \"chore: release\" && git push origin master --tags && npm publish",
+        "release:minor": "npm run test && npm run tsc && npm version minor -m \"chore: release\" && git push origin master --tags && npm publish",
+        "release:patch": "npm run test && npm run tsc && npm version patch -m \"chore: release\" && git push origin master --tags && npm publish"
     },
     "engines": {
         "node": "^12.0.0 || >=14.0.0"
