@@ -13,7 +13,7 @@ Maybe it's still not fun, but at least it's _less not fun_.
 ## install
 
 ```sh
-$ npm install sql
+$ npm install sql-ts
 ```
 
 ## use
