@@ -8,7 +8,7 @@ So let's build it with TypeScript (JavaScript also supported).
 
 Maybe it's still not fun, but at least it's _less not fun_.
 
-[![Build Status](https://travis-ci.com/charsleysa/node-sql-ts.svg?branch=master)](https://travis-ci.com/charsleysa/node-sql-ts)
+![CI/CD](https://github.com/charsleysa/node-sql-ts/workflows/CI/CD/badge.svg)
 
 ## install
 
@@ -20,7 +20,7 @@ $ npm install sql-ts
 
 ```ts
 //require the module
-import { Sql } from 'sql';
+import { Sql } from 'sql-ts';
 
 //(optionally) set the SQL dialect
 const sql = new Sql('postgres');
