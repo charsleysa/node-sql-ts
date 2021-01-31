@@ -387,6 +387,9 @@ export class Mssql extends Postgres {
     //
     //  return "SHOW INDEX FROM " + tableName;
     // };
+    public visitIfNotExistsIndex(): string[] {
+        throw new Error('MSSQL does not allow ifNotExists clause on indexes.');
+    }
     public visitOnDuplicate(onDuplicateNode: OnDuplicateNode): string[] {
         throw new Error('MSSQL does not allow onDuplicate clause.');
     }
