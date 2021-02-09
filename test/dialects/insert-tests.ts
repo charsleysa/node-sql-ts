@@ -1173,3 +1173,31 @@ Harness.test({
     },
     params: []
 });
+
+Harness.test({
+    query: post.insert({
+        userId: user.select(user.id).from(user).where(user.name.equals('John')),
+        content: 'Hello world'
+    }),
+    pg: {
+        text: 'INSERT INTO "post" ("userId", "content") VALUES ((SELECT "user"."id" FROM "user" WHERE ("user"."name" = $1)), $2)',
+        string: 'INSERT INTO "post" ("userId", "content") VALUES ((SELECT "user"."id" FROM "user" WHERE ("user"."name" = \'John\')), \'Hello world\')'
+    },
+    sqlite: {
+        text: 'INSERT INTO "post" ("userId", "content") VALUES ((SELECT "user"."id" FROM "user" WHERE ("user"."name" = $1)), $2)',
+        string: 'INSERT INTO "post" ("userId", "content") VALUES ((SELECT "user"."id" FROM "user" WHERE ("user"."name" = \'John\')), \'Hello world\')'
+    },
+    mysql: {
+        text: 'INSERT INTO `post` (`userId`, `content`) VALUES ((SELECT `user`.`id` FROM `user` WHERE (`user`.`name` = ?)), ?)',
+        string: 'INSERT INTO `post` (`userId`, `content`) VALUES ((SELECT `user`.`id` FROM `user` WHERE (`user`.`name` = \'John\')), \'Hello world\')'
+    },
+    mssql: {
+        text: 'INSERT INTO [post] ([userId], [content]) VALUES ((SELECT [user].[id] FROM [user] WHERE ([user].[name] = @1)), @2)',
+        string: 'INSERT INTO [post] ([userId], [content]) VALUES ((SELECT [user].[id] FROM [user] WHERE ([user].[name] = \'John\')), \'Hello world\')'
+    },
+    oracle: {
+        text: 'INSERT INTO "post" ("userId", "content") VALUES ((SELECT "user"."id" FROM "user" WHERE ("user"."name" = :1)), :2)',
+        string: 'INSERT INTO "post" ("userId", "content") VALUES ((SELECT "user"."id" FROM "user" WHERE ("user"."name" = \'John\')), \'Hello world\')'
+    },
+    params: ['John', 'Hello world']
+});

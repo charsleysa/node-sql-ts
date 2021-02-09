@@ -392,9 +392,11 @@ export class Postgres extends Dialect {
         const paramNodes = insertNode.getParameters();
         if (paramNodes.length > 0) {
             const paramText = paramNodes
-                .map((paramSet) => {
-                    return paramSet.map((param) => this.visit(param)).join(', ');
-                })
+                .map((paramSet) => paramSet.map((param) => {
+                    const value = this.visit(param).toString()
+                    if (value.startsWith('SELECT')) return `(${value})`
+                    return value
+                }).join(', '))
                 .map((param) => `(${param})`)
                 .join(', ');
             result.push('VALUES', paramText);
