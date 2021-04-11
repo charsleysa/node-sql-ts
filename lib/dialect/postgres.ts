@@ -1153,30 +1153,45 @@ export class Postgres extends Dialect {
             'AND pg_class.oid=pg_index.indrelid)'
         ];
     }
-    public visitCreateIndex(createIndexNode: CreateIndexNode): string[] {
+
+    protected notEmpty<T>(t: T | undefined): t is T {
+        return t !== undefined
+    }
+
+    protected _visitCreateIndex(createIndexNode: CreateIndexNode) {
         if (!createIndexNode.options.columns || createIndexNode.options.columns.length === 0) {
             throw new Error('No columns defined!');
         }
         const tableName = this.visit(createIndexNode.table.toNode());
-        const ifNotExists = createIndexNode.options?.ifNotExists ? this.visitIfNotExistsIndex() : []
-        const notEmpty = <T>(t: T | undefined): t is T => t !== undefined
+        const ifNotExists = createIndexNode.options?.ifNotExists ? this.visitIfNotExistsIndex() : [];
+        const indexType = createIndexNode.options?.type?.toUpperCase();
+        const indexName = this.quote(createIndexNode.indexName());
+        const algorithm = createIndexNode.options.algorithm ? 'USING ' + createIndexNode.options.algorithm.toUpperCase() : undefined;
+        const columns = '(' + createIndexNode.options.columns.reduce<string[]>((res, col) => {
+            const column = col.name ? col.name : col.value.name;
+            const direction = col instanceof OrderByValueNode ? ` ${col.direction!.text}` : '';
+            return res.concat(this.quote(column) + direction);
+        }, []) + ')';
+        const parser = createIndexNode.options.parser ? 'WITH PARSER ' + createIndexNode.options.parser : undefined;
+
+        return { indexType, ifNotExists, indexName, tableName, algorithm, columns, parser };
+    }
+
+    public visitCreateIndex(createIndexNode: CreateIndexNode): string[] {
+        const { indexType, ifNotExists, indexName, tableName, algorithm, columns, parser } = this._visitCreateIndex(createIndexNode);
+
         return [
             'CREATE',
-            createIndexNode.options?.type?.toUpperCase(),
+            indexType,
             'INDEX',
             ...ifNotExists,
-            this.quote(createIndexNode.indexName()),
-            createIndexNode.options.algorithm ? 'USING ' + createIndexNode.options.algorithm.toUpperCase() : undefined,
+            indexName,
+            algorithm,
             'ON',
             ...tableName,
-            '(' + createIndexNode.options.columns.reduce<string[]>((res, col) => {
-                const column = col.name ? col.name : col.value.name;
-                const direction = col instanceof OrderByValueNode ? ` ${col.direction!.text}` : '';
-                return res.concat(this.quote(column) + direction);
-            }, []) + ')',
-            createIndexNode.options.parser ? 'WITH PARSER' : undefined,
-            createIndexNode.options.parser,
-        ].filter(notEmpty);
+            columns,
+            parser
+        ].filter(this.notEmpty);
     }
     public visitIfNotExistsIndex(): string[] {
         return ['IF NOT EXISTS']
