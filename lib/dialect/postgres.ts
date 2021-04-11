@@ -1186,9 +1186,9 @@ export class Postgres extends Dialect {
             'INDEX',
             ...ifNotExists,
             indexName,
-            algorithm,
             'ON',
             ...tableName,
+            algorithm,
             columns,
             parser
         ].filter(this.notEmpty);
