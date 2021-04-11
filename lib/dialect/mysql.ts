@@ -6,6 +6,7 @@ import isNumber from 'lodash/isNumber';
 import {
     BinaryNode,
     ColumnNode,
+    CreateIndexNode,
     CreateNode,
     ForShareNode,
     FunctionCallNode,
@@ -118,6 +119,22 @@ export class Mysql extends Postgres {
     public visitIndexes(indexesNode: IndexesNode): string[] {
         const tableName = this.visit(this.queryNode!.table.toNode())[0];
         return [`SHOW INDEX FROM ${tableName}`];
+    }
+    public visitCreateIndex(createIndexNode: CreateIndexNode): string[] {
+        const { indexType, ifNotExists, indexName, tableName, algorithm, columns, parser } = this._visitCreateIndex(createIndexNode);
+
+        return [
+            'CREATE',
+            indexType,
+            'INDEX',
+            ...ifNotExists,
+            indexName,
+            algorithm,
+            'ON',
+            ...tableName,
+            columns,
+            parser
+        ].filter(this.notEmpty);
     }
     public visitIfNotExistsIndex(): string[] {
         throw new Error('MySQL does not allow ifNotExists clause on indexes.');

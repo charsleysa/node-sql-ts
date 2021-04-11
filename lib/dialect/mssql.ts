@@ -10,6 +10,7 @@ import {
     BinaryNode,
     CaseNode,
     ColumnNode,
+    CreateIndexNode,
     CreateNode,
     DropNode,
     FunctionCallNode,
@@ -387,6 +388,22 @@ export class Mssql extends Postgres {
     //
     //  return "SHOW INDEX FROM " + tableName;
     // };
+    public visitCreateIndex(createIndexNode: CreateIndexNode): string[] {
+        const { indexType, ifNotExists, indexName, tableName, algorithm, columns, parser } = this._visitCreateIndex(createIndexNode);
+
+        return [
+            'CREATE',
+            indexType,
+            'INDEX',
+            ...ifNotExists,
+            indexName,
+            algorithm,
+            'ON',
+            ...tableName,
+            columns,
+            parser
+        ].filter(this.notEmpty);
+    }
     public visitIfNotExistsIndex(): string[] {
         throw new Error('MSSQL does not allow ifNotExists clause on indexes.');
     }
