@@ -7,6 +7,7 @@ import {
     AddColumnNode,
     BinaryNode,
     CascadeNode,
+    CreateIndexNode,
     DefaultNode,
     DropColumnNode,
     ForShareNode,
@@ -177,6 +178,22 @@ export class Sqlite extends Postgres {
     public visitIndexes(indexesNode: IndexesNode): string[] {
         const tableName = this.visit(this.queryNode!.table.toNode())[0];
         return [`PRAGMA INDEX_LIST(${tableName})`];
+    }
+    public visitCreateIndex(createIndexNode: CreateIndexNode): string[] {
+        const { indexType, ifNotExists, indexName, tableName, algorithm, columns, parser } = this._visitCreateIndex(createIndexNode);
+
+        return [
+            'CREATE',
+            indexType,
+            'INDEX',
+            ...ifNotExists,
+            indexName,
+            algorithm,
+            'ON',
+            ...tableName,
+            columns,
+            parser
+        ].filter(this.notEmpty);
     }
     public visitCascade(cascadeNode: CascadeNode): string[] {
         throw new Error('Sqlite do not support CASCADE in DROP TABLE');

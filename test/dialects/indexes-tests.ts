@@ -35,8 +35,8 @@ Harness.test({
         .on(post.id, post.userId)
         .withParser('foo'),
     pg: {
-        text: 'CREATE UNIQUE INDEX "index_name" USING BTREE ON "post" ("id","userId") WITH PARSER foo',
-        string: 'CREATE UNIQUE INDEX "index_name" USING BTREE ON "post" ("id","userId") WITH PARSER foo'
+        text: 'CREATE UNIQUE INDEX "index_name" ON "post" USING BTREE ("id","userId") WITH PARSER foo',
+        string: 'CREATE UNIQUE INDEX "index_name" ON "post" USING BTREE ("id","userId") WITH PARSER foo'
     },
     mysql: {
         text: 'CREATE UNIQUE INDEX `index_name` USING BTREE ON `post` (`id`,`userId`) WITH PARSER foo',

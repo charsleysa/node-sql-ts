@@ -9,6 +9,7 @@ import {
     CascadeNode,
     CaseNode,
     ColumnNode,
+    CreateIndexNode,
     CreateNode,
     DropIndexNode,
     DropNode,
@@ -239,6 +240,22 @@ export class Oracle extends Postgres {
             indexes += " AND TABLE_OWNER = '" + schemaName + "'";
         }
         return [indexes];
+    }
+    public visitCreateIndex(createIndexNode: CreateIndexNode): string[] {
+        const { indexType, ifNotExists, indexName, tableName, algorithm, columns, parser } = this._visitCreateIndex(createIndexNode);
+
+        return [
+            'CREATE',
+            indexType,
+            'INDEX',
+            ...ifNotExists,
+            indexName,
+            algorithm,
+            'ON',
+            ...tableName,
+            columns,
+            parser
+        ].filter(this.notEmpty);
     }
     public visitDropIndex(dropIndexNode: DropIndexNode): string[] {
         if (dropIndexNode.options.ifExists) {
