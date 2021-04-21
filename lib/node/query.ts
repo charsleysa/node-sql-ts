@@ -229,9 +229,9 @@ export class Query<T> extends Node {
     }
 
     public insert(object: Column<unknown>[] | Column<unknown>): this;
-    public insert(object: Partial<T>[] | Partial<T>): this;
+    public insert(object: PartialNodeable<T>[] | PartialNodeable<T>): this;
     public insert(...nodes: Column<unknown>[]): this;
-    public insert(...nodes: (Column<unknown>[] | Column<unknown> | Partial<T>[] | Partial<T>)[]): this {
+    public insert(...nodes: (Column<unknown>[] | Column<unknown> | PartialNodeable<T>[] | PartialNodeable<T>)[]): this {
         let args = sliced(nodes) as Column<unknown>[];
         const object = nodes[0];
 
