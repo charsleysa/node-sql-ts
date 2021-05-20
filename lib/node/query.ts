@@ -586,7 +586,7 @@ type SubQueryExtensions<T, C extends object> = {
 } & {
     columns: Column<unknown>[]
 } & {
-    [P in keyof C]: Column<C[P]>
+    [P in NonNullable<keyof C>]: Column<C[P]>
 };
 
 export type SubQuery<T, C extends object> = Query<T> & SubQueryExtensions<T, C>;
