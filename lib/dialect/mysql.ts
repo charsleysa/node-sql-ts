@@ -1,44 +1,43 @@
-'use strict';
-
 import assert from 'assert';
-import isNumber from 'lodash/isNumber';
+import isNumber from 'lodash/isNumber.js';
 
-import {
-    BinaryNode,
-    ColumnNode,
-    CreateIndexNode,
-    CreateNode,
-    ForShareNode,
-    FunctionCallNode,
-    IndexesNode,
-    InsertNode,
-    IntervalNode,
-    OnConflictNode,
-    OnDuplicateNode,
-    RenameColumnNode,
-    ReplaceNode,
-    ReturningNode
-} from '../node';
-import { Postgres } from './postgres';
+import { BinaryNode } from '../node/binary.js';
+import { ColumnNode } from '../node/column.js';
+import { CreateNode } from '../node/create.js';
+import { CreateIndexNode } from '../node/createIndex.js';
+import { ForShareNode } from '../node/forShare.js';
+import { FunctionCallNode } from '../node/functionCall.js';
+import { IndexesNode } from '../node/indexes.js';
+import { InsertNode } from '../node/insert.js';
+import { IntervalNode } from '../node/interval.js';
+import { OnConflictNode } from '../node/onConflict.js';
+import { OnDuplicateNode } from '../node/onDuplicate.js';
+import { RenameColumnNode } from '../node/renameColumn.js';
+import { ReplaceNode } from '../node/replace.js';
+import { ReturningNode } from '../node/returning.js';
+import { Dialect } from './dialect.js';
 
-export class Mysql extends Postgres {
-    protected myClass = Mysql;
-    protected quoteCharacter = '`';
-    protected arrayAggFunctionName = 'GROUP_CONCAT';
-
+export class Mysql extends Dialect<any> {
     constructor(config: any) {
         super(config);
+        this.quoteCharacter = '`';
+        this.arrayAggFunctionName = 'GROUP_CONCAT';
     }
+
+    protected createSubInstance() {
+        return new Mysql(this.config);
+    }
+
     public _getParameterPlaceholder(index: string | number, value: any): string {
         return '?';
     }
     public _getParameterValue(
-        value: null | boolean | number | string | any[] | Date | Buffer | object,
+        value: null | boolean | number | string | any[] | Date | Buffer | Record<string, unknown>,
         quoteChar?: string
     ): string | number {
         return Buffer.isBuffer(value)
-            ? 'x' + this._getParameterValue(value.toString('hex'))
-            : Postgres.prototype._getParameterValue.call(this, value);
+            ? 'x' + this._getParameterValue(value.toString('hex'), quoteChar)
+            : super._getParameterValue(value, quoteChar);
     }
     public visitReplace(replaceNode: ReplaceNode): string[] {
         // don't use table.column for replaces
@@ -143,7 +142,7 @@ export class Mysql extends Postgres {
         throw new Error('MySQL does not allow ifExists clause on indexes.');
     }
     public visitBinary(binaryNode: BinaryNode): string[] {
-        if (binaryNode.operator === '@@') {
+        if (binaryNode.operator === '@@' && !Array.isArray(binaryNode.right)) {
             return [`(MATCH ${this.visit(binaryNode.left)} AGAINST ${this.visit(binaryNode.right)})`];
         }
         return super.visitBinary(binaryNode);

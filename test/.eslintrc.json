@@ -1,0 +1,14 @@
+{
+    "extends": "../.eslintrc.json",
+    "parserOptions": {
+        "project": [
+            "tsconfig.json"
+        ],
+        "sourceType": "module"
+    },
+    "rules": {
+        "prefer-arrow/prefer-arrow-functions": "off",
+        "id-blacklist": "off",
+        "import/no-internal-modules": "off"
+    }
+}

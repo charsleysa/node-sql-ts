@@ -1,8 +1,9 @@
-'use strict';
-
-import { ColumnNode, DefaultNode, Node, ParameterNode } from '.';
-import { Column } from '../column';
-import { INodeable } from '../nodeable';
+import { Column } from '../column.js';
+import { INodeable } from '../nodeable.js';
+import { ColumnNode } from './column.js';
+import { DefaultNode } from './default.js';
+import { Node } from './node.js';
+import { ParameterNode } from './parameter.js';
 
 export class ReplaceNode extends Node {
     public columns: ColumnNode[];

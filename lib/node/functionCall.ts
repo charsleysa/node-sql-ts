@@ -1,20 +1,14 @@
-'use strict';
+import { AliasMixin } from './alias.js';
+import { ParameterNode } from './parameter.js';
+import { ValueExpressionNode } from './_internal.js';
 
-import extend from 'lodash/extend';
-import { AliasNode, IAliasMixin, IValueExpressionMixin, Node, ParameterNode, valueExpressionMixin } from '.';
-
-export class FunctionCallNode extends Node {
+export class FunctionCallNode extends ValueExpressionNode {
     public name: string;
     constructor(name: string, args: any[]) {
         super('FUNCTION CALL');
         this.name = name;
         this.addAll(args.map(ParameterNode.getNodeOrParameterNode));
     }
+
+    public as = AliasMixin.as;
 }
-
-// mix in value expression
-extend(FunctionCallNode.prototype, valueExpressionMixin());
-
-extend(FunctionCallNode.prototype, AliasNode.AliasMixin);
-
-export interface FunctionCallNode extends IValueExpressionMixin, IAliasMixin {}

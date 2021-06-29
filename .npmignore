@@ -1,11 +1,11 @@
 @types/
 lib/
 node_modules/
+spec/
 test/
+.eslintrc.json
 .gitignore
 .prettierrc
 .travis.yml
 runtests.js
 tsconfig.json
-tsconfig.cjs.json
-tslint.json

@@ -1,7 +1,5 @@
-'use strict';
-
-import { Node } from '.';
-import { Table } from '../table';
+import { Table } from '../table.js';
+import { Node } from './node.js';
 
 export class TableNode extends Node {
     public table: Table<unknown>;

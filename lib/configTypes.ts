@@ -1,4 +1,4 @@
-import { Sql } from './sql';
+import { Sql } from './sql.js';
 
 export type SQLDialects = 'mssql' | 'mysql' | 'oracle' | 'postgres' | 'sqlite';
 

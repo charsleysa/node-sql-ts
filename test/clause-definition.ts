@@ -1,8 +1,7 @@
-'use strict';
-
+/* eslint-disable max-classes-per-file */
 import { strictEqual } from 'assert';
 
-import { Node } from '../lib/node/';
+import { Node } from '../dist/lib.js';
 
 class Bang extends Node {
     constructor() {

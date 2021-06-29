@@ -1,8 +1,0 @@
-{
-    "extends": ["../tslint.json"],
-    "rules": {
-        "only-arrow-functions": false,
-        "object-literal-sort-keys": false,
-        "max-classes-per-file": false
-    }
-}

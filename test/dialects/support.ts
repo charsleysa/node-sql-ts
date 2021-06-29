@@ -1,12 +1,6 @@
-'use strict';
 import assert from 'assert';
 
-import { Mssql } from '../../lib/dialect/mssql';
-import { Mysql } from '../../lib/dialect/mysql';
-import { Oracle } from '../../lib/dialect/oracle';
-import { Postgres } from '../../lib/dialect/postgres';
-import { Sqlite } from '../../lib/dialect/sqlite';
-import { Table } from '../../lib/table';
+import { Mssql, Mysql, Oracle, Postgres, Sqlite, Table } from '../../dist/lib.js';
 
 // specify dialect classes
 const dialects = {
@@ -111,7 +105,7 @@ export interface CustomerTable {
     name: string;
     age: number;
     income: number;
-    metadata: object;
+    metadata: Record<string, unknown>;
 }
 
 export function defineCustomerTable() {
@@ -123,7 +117,7 @@ export function defineCustomerTable() {
 
 export interface CustomerCompositeTable {
     id: number;
-    info: object;
+    info: Record<string, unknown>;
 }
 
 // This table defines the customer attributes as a composite field
@@ -142,7 +136,7 @@ export interface CustomerAliasTable {
     name_alias: string;
     age_alias: number;
     income_alias: number;
-    metadata_alias: object;
+    metadata_alias: Record<string, unknown>;
 }
 
 export function defineCustomerAliasTable() {

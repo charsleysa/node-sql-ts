@@ -1,21 +1,14 @@
-'use strict';
+import flatten from 'lodash/flatten.js';
+import { AliasMixin } from './alias.js';
+import { ParameterNode } from './parameter.js';
+import { ValueExpressionNode } from './_internal.js';
 
-import extend from 'lodash/extend';
-import flatten from 'lodash/flatten';
-import { AliasNode, IAliasMixin, IValueExpressionMixin, Node, ParameterNode, valueExpressionMixin } from '.';
-
-export class RowCallNode extends Node {
+export class RowCallNode extends ValueExpressionNode {
     constructor(args: any[]) {
         super('ROW CALL');
         args = flatten(args);
         this.addAll(args.map(ParameterNode.getNodeOrParameterNode));
     }
+
+    public as = AliasMixin.as;
 }
-
-// mix in value expression
-extend(RowCallNode.prototype, valueExpressionMixin());
-
-// allow aliasing
-extend(RowCallNode.prototype, AliasNode.AliasMixin);
-
-export interface RowCallNode extends IValueExpressionMixin, IAliasMixin {}

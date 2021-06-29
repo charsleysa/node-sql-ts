@@ -1,7 +1,6 @@
-'use strict';
 import { throws, strictEqual, deepStrictEqual } from 'assert';
 
-import { Sql } from '../lib';
+import { Sql, Mysql, Mssql, Oracle, Postgres, Sqlite } from '../dist/lib.js';
 
 const instance = new Sql();
 const user = instance.define<{ id: string; email: string }>({
@@ -97,11 +96,11 @@ suite('index', function() {
         const sqlite = new Sql('sqlite');
         const oracle = new Sql('oracle');
 
-        strictEqual(mysql.dialect, require('../lib/dialect/mysql').Mysql);
-        strictEqual(postgres.dialect, require('../lib/dialect/postgres').Postgres);
-        strictEqual(sqlite.dialect, require('../lib/dialect/sqlite').Sqlite);
-        strictEqual(mssql.dialect, require('../lib/dialect/mssql').Mssql);
-        strictEqual(oracle.dialect, require('../lib/dialect/oracle').Oracle);
+        strictEqual(mysql.dialect, Mysql);
+        strictEqual(postgres.dialect, Postgres);
+        strictEqual(sqlite.dialect, Sqlite);
+        strictEqual(mssql.dialect, Mssql);
+        strictEqual(oracle.dialect, Oracle);
     });
 
     test('override dialect for toQuery using dialect name', function() {

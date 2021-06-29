@@ -1,9 +1,7 @@
-'use strict';
-
 import sliced from 'sliced';
-import { Node } from '.';
-import { Column } from '../column';
-import { IndexCreationQuery, Table } from '../table';
+import { Column } from '../column.js';
+import { IndexCreationQuery, Table } from '../table.js';
+import { Node } from './node.js';
 
 export class CreateIndexNode extends Node implements IndexCreationQuery {
     public table: Table<unknown>;

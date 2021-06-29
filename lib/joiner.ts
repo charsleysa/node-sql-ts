@@ -1,6 +1,4 @@
-'use strict';
-
-import { Table } from './table';
+import { Table } from './table.js';
 
 const getPrimaryKeyColumn = (table: Table<unknown>) => {
     for (const col of table.columns) {

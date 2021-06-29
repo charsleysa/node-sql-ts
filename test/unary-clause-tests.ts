@@ -1,7 +1,5 @@
-'use strict';
-
 import assert from 'assert';
-import { Table } from '../lib/table';
+import { Table } from '../dist/lib.js';
 
 const Foo = Table.define<{ baz: string; bar: string }>({
     name: 'foo',

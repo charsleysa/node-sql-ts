@@ -1,7 +1,5 @@
-'use strict';
-
 import { strictEqual } from 'assert';
-import { SelectNode } from '../lib/node';
+import { SelectNode } from '../dist/lib.js';
 
 const select = new SelectNode();
 

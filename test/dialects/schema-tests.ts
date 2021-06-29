@@ -1,7 +1,5 @@
-'use strict';
-
-import * as Harness from './support';
-import { Table } from '../../lib/table';
+import * as Harness from './support.js';
+import { Table } from '../../dist/lib.js';
 
 const userWithSchema = Table.define<{ id: number; name: string }>({
     schema: 'staging',

@@ -1,30 +1,26 @@
 // TODO: visitCreate needs to support schemas
 // TODO: visitDrop needs to support schemas
 
-'use strict';
-
 import assert from 'assert';
 
-import {
-    AlterNode,
-    BinaryNode,
-    CaseNode,
-    ColumnNode,
-    CreateIndexNode,
-    CreateNode,
-    DropNode,
-    FunctionCallNode,
-    ModifierNode,
-    Node,
-    OnConflictNode,
-    OnDuplicateNode,
-    OrderByNode,
-    ParameterNode,
-    ReplaceNode,
-    ReturningNode,
-    SelectNode
-} from '../node';
-import { Postgres } from './postgres';
+import { AlterNode } from '../node/alter.js';
+import { BinaryNode } from '../node/binary.js';
+import { CaseNode } from '../node/case.js';
+import { ColumnNode } from '../node/column.js';
+import { CreateNode } from '../node/create.js';
+import { CreateIndexNode } from '../node/createIndex.js';
+import { DropNode } from '../node/drop.js';
+import { FunctionCallNode } from '../node/functionCall.js';
+import { ModifierNode } from '../node/modifier.js';
+import { Node } from '../node/node.js';
+import { OnConflictNode } from '../node/onConflict.js';
+import { OnDuplicateNode } from '../node/onDuplicate.js';
+import { OrderByNode } from '../node/orderBy.js';
+import { ParameterNode } from '../node/parameter.js';
+import { ReplaceNode } from '../node/replace.js';
+import { ReturningNode } from '../node/returning.js';
+import { SelectNode } from '../node/select.js';
+import { Dialect } from './dialect.js';
 
 /**
  * Config can contain:
@@ -34,13 +30,17 @@ import { Postgres } from './postgres';
  * @param config
  * @constructor
  */
-export class Mssql extends Postgres {
-    protected myClass = Mssql;
-    protected quoteCharacter = '[';
-    protected arrayAggFunctionName = '';
+export class Mssql extends Dialect<{ questionMarkParameterPlaceholder?: boolean }> {
     constructor(config: { questionMarkParameterPlaceholder?: boolean }) {
         super(config);
+        this.quoteCharacter = '['
+        this.arrayAggFunctionName = '';
     }
+
+    protected createSubInstance() {
+        return new Mssql(this.config);
+    }
+
     public _getParameterPlaceholder(index: string | number, value: any): string {
         if (this.config.questionMarkParameterPlaceholder) {
             return '?';
@@ -51,10 +51,10 @@ export class Mssql extends Postgres {
         throw new Error('Mssql does not support REPLACE.');
     }
     public visitBinary(binaryNode: BinaryNode): string[] {
-        if (binaryNode.operator === '@@') {
-            return [`(CONTAINS (${this.visit(binaryNode.left)}, ${this.visit(binaryNode.right)}))`];
+        if (binaryNode.operator === '@@' && !Array.isArray(binaryNode.right)) {
+            return [`(CONTAINS (${this.visit(binaryNode.left)}, ${this.visit(binaryNode.right as Node)}))`];
         }
-        if (!isRightSideArray(binaryNode)) {
+        if (!Array.isArray(binaryNode.right)) {
             return super.visitBinary(binaryNode);
         }
         if (binaryNode.operator === 'IN' || binaryNode.operator === 'NOT IN') {
@@ -146,11 +146,7 @@ export class Mssql extends Postgres {
             }
             // dealing with a true/false value
             const val = (node as ParameterNode).value();
-            if (val === true) {
-                return '1=1';
-            } else {
-                return '0=1';
-            }
+            return val === true ? '1=1' : '0=1';
         };
         assert(caseNode.whenList.length === caseNode.thenList.length);
         let text = '(CASE';
@@ -166,9 +162,8 @@ export class Mssql extends Postgres {
         return [text];
     }
     public visitColumn(columnNode: ColumnNode): string[] {
-        let table;
         let inSelectClause: boolean = false;
-        table = columnNode.table;
+        const table = columnNode.table;
         inSelectClause = !this.selectOrDeleteEndIndex;
         const arrayAgg = () => {
             throw new Error('SQL Server does not support array_agg.');
@@ -434,11 +429,11 @@ export class Mssql extends Postgres {
 }
 
 // Node is either an OFFSET or LIMIT node
-function getModifierValue(dialect: Mssql, node: ModifierNode) {
+const getModifierValue = (dialect: Mssql, node: ModifierNode) => {
     return node.count.type ? dialect.visit(node.count) : node.count;
 }
 
-function isAlterAddColumn(alterNode: AlterNode) {
+const isAlterAddColumn = (alterNode: AlterNode) => {
     if (alterNode.nodes.length === 0) {
         return false;
     }
@@ -448,7 +443,7 @@ function isAlterAddColumn(alterNode: AlterNode) {
     return true;
 }
 
-function isAlterDropColumn(alterNode: AlterNode) {
+const isAlterDropColumn = (alterNode: AlterNode) => {
     if (alterNode.nodes.length === 0) {
         return false;
     }
@@ -458,7 +453,7 @@ function isAlterDropColumn(alterNode: AlterNode) {
     return true;
 }
 
-function isAlterRename(alterNode: AlterNode) {
+const isAlterRename = (alterNode: AlterNode) => {
     if (alterNode.nodes.length === 0) {
         return false;
     }
@@ -468,7 +463,7 @@ function isAlterRename(alterNode: AlterNode) {
     return true;
 }
 
-function isAlterRenameColumn(alterNode: AlterNode) {
+const isAlterRenameColumn = (alterNode: AlterNode) => {
     if (alterNode.nodes.length === 0) {
         return false;
     }
@@ -478,7 +473,7 @@ function isAlterRenameColumn(alterNode: AlterNode) {
     return true;
 }
 
-function isCountStarExpression(columnNode: ColumnNode) {
+const isCountStarExpression = (columnNode: ColumnNode) => {
     if (!columnNode.aggregator) {
         return false;
     }
@@ -491,7 +486,7 @@ function isCountStarExpression(columnNode: ColumnNode) {
     return true;
 }
 
-function isCreateIfNotExists(createNode: CreateNode) {
+const isCreateIfNotExists = (createNode: CreateNode) => {
     if (createNode.nodes.length === 0) {
         return false;
     }
@@ -501,11 +496,11 @@ function isCreateIfNotExists(createNode: CreateNode) {
     return true;
 }
 
-function isCreateTemporary(createNode: CreateNode) {
+const isCreateTemporary = (createNode: CreateNode) => {
     return createNode.options.isTemporary;
 }
 
-function isDropIfExists(dropNode: DropNode) {
+const isDropIfExists = (dropNode: DropNode) => {
     if (dropNode.nodes.length === 0) {
         return false;
     }
@@ -513,9 +508,4 @@ function isDropIfExists(dropNode: DropNode) {
         return false;
     }
     return true;
-}
-
-// SQL Server does not support array expressions except in the IN clause.
-function isRightSideArray(binaryNode: BinaryNode) {
-    return Array.isArray(binaryNode.right);
 }

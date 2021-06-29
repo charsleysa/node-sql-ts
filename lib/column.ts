@@ -1,9 +1,11 @@
-'use strict';
-
-import extend from 'lodash/extend';
-import { ColumnNode, IValueExpressionMixin, OrderByValueNode, TextNode, valueExpressionMixin } from './node';
-import { INodeable } from './nodeable';
-import { Table } from './table';
+/* eslint-disable max-classes-per-file */
+import { ColumnNode } from './node/column.js';
+import { Node } from './node/node.js';
+import { OrderByValueNode } from './node/orderByValue.js';
+import { ValueExpressionMixin } from './node/_internal.js';
+import { TextNode } from './node/text.js';
+import { INodeable } from './nodeable.js';
+import { Table } from './table.js';
 
 interface ColumnConfig {
     name?: string;
@@ -32,13 +34,16 @@ interface ColumnConfig {
     constantValue?: any;
 }
 
-export class Column<T> implements INodeable {
+abstract class ColumnBase implements INodeable {
+    public abstract toNode(): Node;
+}
+
+export class Column<T> extends ValueExpressionMixin(ColumnBase) implements INodeable {
     public name: string;
     public property?: string;
     public table?: Table<unknown>;
     public alias?: string;
     public dataType?: string;
-    // tslint:disable-next-line:variable-name
     public _value: any;
     public star?: boolean;
     public subfields: { [key: string]: Column<unknown> } = {};
@@ -63,6 +68,7 @@ export class Column<T> implements INodeable {
     public unique?: boolean;
     public isDistinct?: boolean;
     constructor(config: ColumnConfig) {
+        super();
         this.name = config.name as string;
         this.property = config.property;
         this.star = config.star;
@@ -144,9 +150,6 @@ export class Column<T> implements INodeable {
     }
 }
 
-// mix in value expression
-extend(Column.prototype, valueExpressionMixin());
-
 const contextify = <T>(base: Column<T>): Column<T> => {
     const context = Object.create(Column.prototype);
     Object.keys(base).forEach((key) => {
@@ -154,6 +157,3 @@ const contextify = <T>(base: Column<T>): Column<T> => {
     });
     return context;
 };
-
-// tslint:disable-next-line:no-empty-interface
-export interface Column<T> extends IValueExpressionMixin {}

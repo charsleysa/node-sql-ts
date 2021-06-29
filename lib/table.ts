@@ -1,13 +1,18 @@
-'use strict';
-
-import map from 'lodash/map';
-import fromPairs from 'lodash/fromPairs';
-import { Column } from './column';
-import { ColumnDefinition, TableDefinition } from './configTypes';
-import { leftJoin } from './joiner';
-import { ColumnNode, DropIndexNode, ForeignKeyNode, JoinNode, LiteralNode, Node, OrderByValueNode, Query, SubQuery, TableNode } from './node';
-import { INodeable, PartialNodeable } from './nodeable';
-import { Sql } from './sql';
+import map from 'lodash/map.js';
+import fromPairs from 'lodash/fromPairs.js';
+import { Column } from './column.js';
+import { ColumnDefinition, TableDefinition } from './configTypes.js';
+import { leftJoin } from './joiner.js';
+import { ColumnNode } from './node/column.js';
+import { DropIndexNode } from './node/dropIndex.js';
+import { ForeignKeyNode } from './node/foreignKey.js';
+import { JoinNode } from './node/join.js';
+import { Node } from './node/node.js';
+import { OrderByValueNode } from './node/orderByValue.js';
+import { Query, SubQuery } from './node/query.js';
+import { TableNode } from './node/table.js';
+import { INodeable, PartialNodeable } from './nodeable.js';
+import { Sql } from './sql.js';
 
 export type TableWithColumns<T> = Table<T> & { [Name in NonNullable<keyof T>]: Column<T[Name]> };
 
@@ -90,7 +95,6 @@ export class Table<T> implements INodeable {
     public createColumn(col: string | ColumnDefinition | Column<unknown>): Column<unknown> {
         if (!(col instanceof Column)) {
             if (typeof col === 'string') {
-                // tslint:disable-next-line:no-object-literal-type-assertion
                 col = { name: col } as ColumnDefinition;
             }
             const column = new Column<unknown>({ ...col, table: this });
@@ -121,7 +125,7 @@ export class Table<T> implements INodeable {
                 return this;
             }
         } else if (!!(this as any)[column.name] && process.env.NODE_ENV === 'debug') {
-            // tslint:disable-next-line:no-console
+            // eslint-disable-next-line no-console
             console.log(
                 `Please notice that you have just defined the column "${
                     column.name
@@ -191,7 +195,7 @@ export class Table<T> implements INodeable {
         }
         return query;
     }
-    public subQuery<C extends object>(alias?: string): SubQuery<T, C> {
+    public subQuery<C extends Record<string, unknown>>(alias?: string): SubQuery<T, C> {
         // create the query and pass it off
         const query = new Query<T>(this, true) as SubQuery<T, C>;
         query.columns = [];
@@ -202,6 +206,7 @@ export class Table<T> implements INodeable {
         return query;
     }
     public insert(object: Column<unknown>[] | Column<unknown>): Query<T>;
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     public insert(object: PartialNodeable<T>[] | PartialNodeable<T>): Query<T>;
     public insert(...nodes: Column<unknown>[]): Query<T>;
     public insert(...nodes: (Column<unknown>[] | Column<unknown> | PartialNodeable<T>[] | PartialNodeable<T>)[]): Query<T> {
@@ -215,6 +220,7 @@ export class Table<T> implements INodeable {
         return query;
     }
     public replace(object: Column<unknown>[] | Column<unknown>): Query<T>;
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     public replace(object: PartialNodeable<T>[] | PartialNodeable<T>): Query<T>;
     public replace(...nodes: Column<unknown>[]): Query<T>;
     public replace(...nodes: (Column<unknown>[] | Column<unknown> | PartialNodeable<T>[] | PartialNodeable<T>)[]): Query<T> {
@@ -264,6 +270,7 @@ export class Table<T> implements INodeable {
         query.create();
         return query;
     }
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     public delete(table: Table<unknown>[] | Table<unknown> | Table<T> | Partial<T>): Query<T>;
     public delete(): Query<T>;
     public delete(arg?: Table<unknown>[] | Table<unknown> | Table<T> | Partial<T>): Query<T> {

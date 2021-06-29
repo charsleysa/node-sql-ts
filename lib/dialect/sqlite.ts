@@ -1,55 +1,50 @@
-'use strict';
-
 import assert from 'assert';
-import isArray from 'lodash/isArray';
+import isArray from 'lodash/isArray.js';
 
-import {
-    AddColumnNode,
-    BinaryNode,
-    CascadeNode,
-    CreateIndexNode,
-    DefaultNode,
-    DropColumnNode,
-    ForShareNode,
-    ForUpdateNode,
-    FunctionCallNode,
-    IndexesNode,
-    OnConflictNode,
-    OnDuplicateNode,
-    OrIgnoreNode,
-    RenameColumnNode,
-    ReplaceNode,
-    RestrictNode,
-    ReturningNode,
-    TruncateNode
-} from '../node';
-import { Postgres } from './postgres';
+import { AddColumnNode } from '../node/addColumn.js';
+import { BinaryNode } from '../node/binary.js';
+import { CascadeNode } from '../node/cascade.js';
+import { CreateIndexNode } from '../node/createIndex.js';
+import { DefaultNode } from '../node/default.js';
+import { DropColumnNode } from '../node/dropColumn.js';
+import { ForShareNode } from '../node/forShare.js';
+import { ForUpdateNode } from '../node/forUpdate.js';
+import { FunctionCallNode } from '../node/functionCall.js';
+import { IndexesNode } from '../node/indexes.js';
+import { OnConflictNode } from '../node/onConflict.js';
+import { OnDuplicateNode } from '../node/onDuplicate.js';
+import { OrIgnoreNode } from '../node/orIgnore.js';
+import { RenameColumnNode } from '../node/renameColumn.js';
+import { ReplaceNode } from '../node/replace.js';
+import { RestrictNode } from '../node/restrict.js';
+import { ReturningNode } from '../node/returning.js';
+import { TruncateNode } from '../node/truncate.js';
+import { Dialect } from './dialect.js';
 
-export class Sqlite extends Postgres {
-    public config: { dateTimeMillis?: boolean };
-    protected myClass = Sqlite;
-
-    protected arrayAggFunctionName = 'GROUP_CONCAT';
-    protected hasAddedAColumn: boolean;
+export class Sqlite extends Dialect<{ dateTimeMillis?: boolean }> {
+    protected hasAddedAColumn: boolean = false;
     constructor(config: { dateTimeMillis?: boolean }) {
         super(config);
         this.config = config;
-        this.hasAddedAColumn = false;
+        this.arrayAggFunctionName = 'GROUP_CONCAT';
+    }
+    protected createSubInstance() {
+        return new Sqlite(this.config);
     }
     public _getParameterValue(
-        value: null | boolean | number | string | any[] | Date | Buffer | object,
+        value: null | boolean | number | string | any[] | Date | Buffer | Record<string, unknown>,
         quoteChar?: string
     ): string | number {
         if (Buffer.isBuffer(value)) {
-            value = 'x' + this._getParameterValue(value.toString('hex'));
+            value = 'x' + this._getParameterValue(value.toString('hex'), quoteChar);
         } else if (value instanceof Date && this.config.dateTimeMillis) {
             value = value.getTime();
         } else if ('boolean' === typeof value) {
             value = value ? 1 : 0;
         } else if (isArray(value)) {
-            value = Postgres.prototype._getParameterValue.call(this, JSON.stringify(value));
+            value = super._getParameterValue(JSON.stringify(value), quoteChar);
         } else {
-            value = Postgres.prototype._getParameterValue.call(this, value);
+            value = super._getParameterValue(value, quoteChar);
         }
         return value;
     }
@@ -171,7 +166,7 @@ export class Sqlite extends Postgres {
     }
     public visitAddColumn(addColumnNode: AddColumnNode): string[] {
         assert(!this.hasAddedAColumn, 'SQLite can not add more that one column at a time');
-        const result = Postgres.prototype.visitAddColumn.call(this, addColumnNode);
+        const result = super.visitAddColumn.call(this, addColumnNode);
         this.hasAddedAColumn = true;
         return result;
     }

@@ -1,8 +1,6 @@
-'use strict';
-
-import { Node } from '.';
-import { INodeable } from '../nodeable';
-import { hasTable } from '../tableTracker';
+import { INodeable } from '../nodeable.js';
+import { hasTable } from '../tableTracker.js';
+import { Node } from './node.js';
 
 export class JoinNode extends Node {
     public subType: string;

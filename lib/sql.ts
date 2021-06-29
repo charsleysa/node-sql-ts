@@ -1,20 +1,22 @@
-'use strict';
-
-import defaults from 'lodash/defaults';
+import defaults from 'lodash/defaults.js';
 import sliced from 'sliced';
-import { Column } from './column';
-import { ColumnDefinition, SQLDialects, TableDefinition } from './configTypes';
-import { DEFAULT_DIALECT, getDialect } from './dialect';
-import * as functions from './functions';
-import { ArrayCallNode, FunctionCallNode, RowCallNode, IntervalNode, LiteralNode, Query } from './node';
-import { Table, TableWithColumns } from './table';
+import { Column } from './column.js';
+import { ColumnDefinition, SQLDialects, TableDefinition } from './configTypes.js';
+import { DEFAULT_DIALECT, getDialect } from './dialect/mapper.js';
+import * as functions from './functions.js';
+import { ArrayCallNode } from './node/arrayCall.js';
+import { FunctionCallNode } from './node/functionCall.js';
+import { IntervalNode } from './node/interval.js';
+import { LiteralNode } from './node/literal.js';
+import { Query } from './node/query.js';
+import { RowCallNode } from './node/rowCall.js';
+import { Table, TableWithColumns } from './table.js';
 
 export class Sql {
     public functions: functions.StandardFunctions;
     public dialect: any;
     public dialectName!: SQLDialects;
     public config: any;
-    // tslint:disable-next-line:variable-name
     private _function: any;
     constructor(dialect: SQLDialects = DEFAULT_DIALECT, config: any = {}) {
         this.setDialect(dialect, config);

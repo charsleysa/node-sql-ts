@@ -1,71 +1,70 @@
-'use strict';
-
+/* eslint-disable no-underscore-dangle */
 import assert from 'assert';
-import extend from 'lodash/extend';
 import sliced from 'sliced';
 
-import {
-    AddColumnNode,
-    AliasNode,
-    AlterNode,
-    CascadeNode,
-    ColumnNode,
-    CreateIndexNode,
-    CreateNode,
-    CreateViewNode,
-    DeleteNode,
-    DistinctNode,
-    DistinctOnNode,
-    DropColumnNode,
-    DropIndexNode,
-    DropNode,
-    ForShareNode,
-    ForUpdateNode,
-    FromNode,
-    GroupByNode,
-    HavingNode,
-    IAliasMixin,
-    IfExistsNode,
-    IfNotExistsNode,
-    IndexesNode,
-    InsertNode,
-    IValueExpressionMixinBase,
-    JoinNode,
-    ModifierNode,
-    Node,
-    OnConflictNode,
-    OnDuplicateNode,
-    OrderByNode,
-    OrIgnoreNode,
-    ParameterNode,
-    PrefixUnaryNode,
-    RenameColumnNode,
-    RenameNode,
-    ReplaceNode,
-    RestrictNode,
-    ReturningNode,
-    SelectNode,
-    TableNode,
-    TruncateNode,
-    UpdateNode,
-    valueExpressionMixin,
-    WhereNode
-} from '.';
-import { Column } from '../column';
-import { INodeable, instanceofINodeable, PartialNodeable } from '../nodeable';
-import { Table } from '../table';
+import { Column } from '../column.js';
+import { INodeable, instanceofINodeable, PartialNodeable } from '../nodeable.js';
+import { Table } from '../table.js';
+import { AddColumnNode } from './addColumn.js';
+import { AliasMixin } from './alias.js';
+import { AlterNode } from './alter.js';
+import { CascadeNode } from './cascade.js';
+import { ColumnNode } from './column.js';
+import { CreateNode } from './create.js';
+import { CreateIndexNode } from './createIndex.js';
+import { CreateViewNode } from './createView.js';
+import { DeleteNode } from './delete.js';
+import { DistinctNode } from './distinct.js';
+import { DistinctOnNode } from './distinctOn.js';
+import { DropNode } from './drop.js';
+import { DropColumnNode } from './dropColumn.js';
+import { DropIndexNode } from './dropIndex.js';
+import { ForShareNode } from './forShare.js';
+import { ForUpdateNode } from './forUpdate.js';
+import { FromNode } from './from.js';
+import { GroupByNode } from './groupBy.js';
+import { HavingNode } from './having.js';
+import { IfExistsNode } from './ifExists.js';
+import { IfNotExistsNode } from './ifNotExists.js';
+import { IndexesNode } from './indexes.js';
+import { InsertNode } from './insert.js';
+import { JoinNode } from './join.js';
+import { ModifierNode } from './modifier.js';
+import { Node } from './node.js';
+import { OnConflictNode } from './onConflict.js';
+import { OnDuplicateNode } from './onDuplicate.js';
+import { OrderByNode } from './orderBy.js';
+import { OrIgnoreNode } from './orIgnore.js';
+import { ParameterNode } from './parameter.js';
+import { PrefixUnaryNode } from './prefixUnary.js';
+import { RenameNode } from './rename.js';
+import { RenameColumnNode } from './renameColumn.js';
+import { ReplaceNode } from './replace.js';
+import { RestrictNode } from './restrict.js';
+import { ReturningNode } from './returning.js';
+import { SelectNode } from './select.js';
+import { TableNode } from './table.js';
+import { TextNode } from './text.js';
+import { TruncateNode } from './truncate.js';
+import { UpdateNode } from './update.js';
+import { ValueExpressionBaseNode } from './_internal.js';
+import { WhereNode } from './where.js';
 
 // get the first element of an arguments if it is an array, else return arguments as an array
 const getArrayOrArgsAsArray = <T>(args: (T | T[])[]): T[] => {
     const first = args[0];
-    if (Array.isArray(first)) {
-        return first;
-    } else {
-        return sliced(args as T[]);
-    }
+    return Array.isArray(first) ? first : sliced(args as T[]);
 };
 
-export class Query<T> extends Node {
+const nodeableOrTextNode = (val: INodeable | string) => {
+    return instanceofINodeable(val) ? val.toNode() : new TextNode(val);
+}
+
+// Here we are extending query from ValueExpressionBaseNode so that it's possible to write queries like
+//   const query=sql.select(a.select(a.x.sum()).plus(b.select(b.y.sum()))
+// which generates:
+//   SELECT (SELECT SUM(a.x) FROM a) + (SELECT SUM(b.y) FROM b)
+export class Query<T> extends ValueExpressionBaseNode {
     public table: Table<T>;
     public nodes: Node[] = [];
     public alias?: string;
@@ -73,11 +72,8 @@ export class Query<T> extends Node {
     private insertClause?: InsertNode;
     private replaceClause?: ReplaceNode;
     private indexesClause?: IndexesNode;
-    // tslint:disable-next-line:variable-name
     private _select?: SelectNode;
-    // tslint:disable-next-line:variable-name
     private _orderBy?: OrderByNode;
-    // tslint:disable-next-line:variable-name
     private _distinctOn?: DistinctOnNode;
 
     constructor(table: Table<T>, isSubquery?: boolean) {
@@ -88,6 +84,12 @@ export class Query<T> extends Node {
             this.sql = table.sql;
         }
     }
+
+    // Extend the query with the aliasMixin so that it's possible to write queries like
+    //   const query=sql.select(a.select(a.count()).as("column1"))
+    // which generates:
+    //   SELECT (SELECT COUNT(*) FROM a) AS "column1"
+    public as = AliasMixin.as;
 
     public select(...args: any[]): this {
         let select;
@@ -109,7 +111,7 @@ export class Query<T> extends Node {
             return cur;
         }, []);
 
-        select.addAll(flattenedArgs);
+        select.addAll(flattenedArgs.map(nodeableOrTextNode));
 
         // if this is a subquery then add reference to this column
         if (this.type === 'SUBQUERY') {
@@ -144,7 +146,7 @@ export class Query<T> extends Node {
         const sourceNodes = Array.isArray(nodes[0]) ? (nodes[0] as Table<unknown>[]) : (nodes as Table<unknown>[]);
 
         for (const node of sourceNodes) {
-            this.add(new FromNode().add(node));
+            this.add(new FromNode().add(nodeableOrTextNode(node)));
         }
 
         return this;
@@ -229,6 +231,7 @@ export class Query<T> extends Node {
     }
 
     public insert(object: Column<unknown>[] | Column<unknown>): this;
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     public insert(object: PartialNodeable<T>[] | PartialNodeable<T>): this;
     public insert(...nodes: Column<unknown>[]): this;
     public insert(...nodes: (Column<unknown>[] | Column<unknown> | PartialNodeable<T>[] | PartialNodeable<T>)[]): this {
@@ -261,6 +264,7 @@ export class Query<T> extends Node {
     }
 
     public replace(object: Column<unknown>[] | Column<unknown>): this;
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     public replace(object: Partial<T>[] | Partial<T>): this;
     public replace(...nodes: Column<unknown>[]): this;
     public replace(...nodes: (Column<unknown>[] | Column<unknown> | Partial<T>[] | Partial<T>)[]): this {
@@ -310,6 +314,7 @@ export class Query<T> extends Node {
         return this.add(param);
     }
 
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     public delete(table: Table<unknown>[] | Table<unknown> | Partial<T>): this;
     public delete(): this;
     public delete(params?: Table<unknown> | Table<unknown>[] | Partial<T>): this {
@@ -334,9 +339,9 @@ export class Query<T> extends Node {
     public returning(...args: any[]): this {
         const returning = new ReturningNode();
         if (args.length === 0) {
-            returning.add('*');
+            returning.add(new TextNode('*'));
         } else {
-            returning.addAll(getArrayOrArgsAsArray(args));
+            returning.addAll(getArrayOrArgsAsArray(args).map(nodeableOrTextNode));
         }
 
         return this.add(returning);
@@ -428,7 +433,7 @@ export class Query<T> extends Node {
             return cur;
         }, []);
 
-        distinctOn.addAll(flattenedArgs);
+        distinctOn.addAll(flattenedArgs.map(nodeableOrTextNode));
 
         return this;
     }
@@ -559,29 +564,7 @@ export class Query<T> extends Node {
     }
 }
 
-// Here we are extending query with valueExpressions so that it's possible to write queries like
-//   const query=sql.select(a.select(a.x.sum()).plus(b.select(b.y.sum()))
-// which generates:
-//   SELECT (SELECT SUM(a.x) FROM a) + (SELECT SUM(b.y) FROM b)
-// We need to remove "or" and "and" from here because it conflicts with the already existing functionality of appending
-// to the where clause like so:
-//   const query=a.select().where(a.name.equals("joe")).or(a.name.equals("sam"))
-const valueExpressions = valueExpressionMixin();
-// @ts-ignore
-delete valueExpressions.or;
-// @ts-ignore
-delete valueExpressions.and;
-extend(Query.prototype, valueExpressions);
-
-// Extend the query with the aliasMixin so that it's possible to write queries like
-//   const query=sql.select(a.select(a.count()).as("column1"))
-// which generates:
-//   SELECT (SELECT COUNT(*) FROM a) AS "column1"
-extend(Query.prototype, AliasNode.AliasMixin);
-
-export interface Query<T> extends IValueExpressionMixinBase, IAliasMixin {}
-
-type SubQueryExtensions<T, C extends object> = {
+type SubQueryExtensions<T, C extends Record<string, unknown>> = {
     join: (other: INodeable) => JoinNode;
 } & {
     columns: Column<unknown>[]
@@ -589,4 +572,4 @@ type SubQueryExtensions<T, C extends object> = {
     [P in NonNullable<keyof C>]: Column<C[P]>
 };
 
-export type SubQuery<T, C extends object> = Query<T> & SubQueryExtensions<T, C>;
+export type SubQuery<T, C extends Record<string, unknown>> = Query<T> & SubQueryExtensions<T, C>;

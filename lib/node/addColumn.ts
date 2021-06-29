@@ -1,6 +1,4 @@
-'use strict';
-
-import { Node } from '.';
+import { Node } from './node.js';
 
 export class AddColumnNode extends Node {
     constructor() {

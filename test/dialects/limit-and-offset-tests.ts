@@ -1,6 +1,4 @@
-'use strict';
-
-import * as Harness from './support';
+import * as Harness from './support.js';
 const user = Harness.defineUserTable();
 
 // For compatibility with PostgreSQL, MySQL also supports the LIMIT row_count OFFSET offset syntax.

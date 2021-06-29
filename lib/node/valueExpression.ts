@@ -1,7 +1,6 @@
-'use strict';
-// tslint:disable:object-literal-sort-keys
-
-import {
+/* eslint-disable max-classes-per-file */
+import { INodeable } from '../nodeable.js';
+import type {
     AtNode,
     BinaryNode,
     CaseNode,
@@ -9,219 +8,180 @@ import {
     InNode,
     NotInNode,
     OrderByValueNode,
-    ParameterNode,
     PostfixUnaryNode,
     SliceNode,
-    TernaryNode,
-    TextNode
-} from '.';
-import { INodeable } from '../nodeable';
+    TernaryNode
+} from './_internal.js';
+import { Node } from './node.js';
+import { ParameterNode } from './parameter.js';
+import { TextNode } from './text.js';
+
+export const classMap = new Map<string, new (...args: any[]) => any>();
 
 // Process values, wrapping them in ParameterNode if necessary.
-const processParams = (val: any) => {
+const processParam = (val: unknown): Node => {
+    if (Array.isArray(val)) {
+        throw new Error('expected single value');
+    }
+    return ParameterNode.getNodeOrParameterNode(val);
+};
+const processParams = (val: any): Node[] => {
+    if (!Array.isArray(val)) {
+        throw new Error('expected array value');
+    }
+    return val.map(ParameterNode.getNodeOrParameterNode);
+};
+const processParamOrParams = (val: any): Node | Node[] => {
     return Array.isArray(val) ? val.map(ParameterNode.getNodeOrParameterNode) : ParameterNode.getNodeOrParameterNode(val);
 };
 
-// Value expressions can be composed to form new value expressions.
-// ValueExpressionMixin is evaluated at runtime, hence the
-// "thunk" around it.
-export const valueExpressionMixin = () => {
-    // tslint:disable:no-shadowed-variable
-    const BinaryNode = require('./binary').BinaryNode;
-    const InNode = require('./in').InNode;
-    const NotInNode = require('./notIn').NotInNode;
-    const CastNode = require('./cast').CastNode;
-    const PostfixUnaryNode = require('./postfixUnary').PostfixUnaryNode;
-    const TernaryNode = require('./ternary').TernaryNode;
-    const CaseNode = require('./case').CaseNode;
-    const AtNode = require('./at').AtNode;
-    const SliceNode = require('./slice').SliceNode;
-    // tslint:enable:no-shadowed-variable
+// Builder functions
 
-    const postfixUnaryMethod = (operator: string) => {
-        /*jshint unused: false */
-        return function(this: INodeable) {
-            return new PostfixUnaryNode({
-                left: this.toNode(),
-                operator
-            });
-        };
-    };
-
-    const binaryMethod = (operator: string) => {
-        return function(this: INodeable, val: any) {
-            return new BinaryNode({
-                left: this.toNode(),
-                operator,
-                right: processParams(val)
-            });
-        };
-    };
-
-    const inMethod = function(this: INodeable, val: any) {
-        return new InNode({
+const postfixUnaryMethod = (operator: string) => {
+    return function(this: INodeable): PostfixUnaryNode {
+        const ctor = classMap.get('POSTFIX UNARY')!;
+        return new ctor({
             left: this.toNode(),
-            right: processParams(val)
+            operator
         });
-    };
-
-    const notInMethod = function(this: INodeable, val: any) {
-        return new NotInNode({
-            left: this.toNode(),
-            right: processParams(val)
-        });
-    };
-
-    const ternaryMethod = (operator: string, separator: string) => {
-        return function(this: INodeable, middle: any, right: any) {
-            return new TernaryNode({
-                left: this.toNode(),
-                operator,
-                middle: processParams(middle),
-                separator,
-                right: processParams(right)
-            });
-        };
-    };
-
-    const atMethod = function(this: INodeable, index: any) {
-        return new AtNode(this.toNode(), processParams(index));
-    };
-
-    const sliceMethod = function(this: INodeable, start: number, end: number) {
-        return new SliceNode(this.toNode(), processParams(start), processParams(end));
-    };
-
-    const castMethod = function(this: INodeable, dataType: string) {
-        return new CastNode(this.toNode(), dataType);
-    };
-
-    const orderMethod = (direction: string) => {
-        return function(this: INodeable) {
-            return new OrderByValueNode({
-                value: this.toNode(),
-                direction: direction ? new TextNode(direction) : undefined
-            });
-        };
-    };
-
-    const caseMethod = function(this: INodeable, whenList: any[], thenList: any[], elseBranch?: any) {
-        if (undefined !== elseBranch) {
-            elseBranch = processParams(elseBranch);
-        }
-        return new CaseNode({
-            whenList: processParams(whenList),
-            thenList: processParams(thenList),
-            else: elseBranch
-        });
-    };
-
-    return {
-        isNull: postfixUnaryMethod('IS NULL'),
-        isNotNull: postfixUnaryMethod('IS NOT NULL'),
-        or: binaryMethod('OR'),
-        and: binaryMethod('AND'),
-        equals: binaryMethod('='),
-        notEquals: binaryMethod('<>'),
-        gt: binaryMethod('>'),
-        gte: binaryMethod('>='),
-        lt: binaryMethod('<'),
-        lte: binaryMethod('<='),
-        plus: binaryMethod('+'),
-        minus: binaryMethod('-'),
-        multiply: binaryMethod('*'),
-        divide: binaryMethod('/'),
-        modulo: binaryMethod('%'),
-        leftShift: binaryMethod('<<'),
-        rightShift: binaryMethod('>>'),
-        bitwiseAnd: binaryMethod('&'),
-        bitwiseNot: binaryMethod('~'),
-        bitwiseOr: binaryMethod('|'),
-        bitwiseXor: binaryMethod('#'),
-        regex: binaryMethod('~'),
-        iregex: binaryMethod('~*'),
-        regexp: binaryMethod('REGEXP'),
-        notRegex: binaryMethod('!~'),
-        notIregex: binaryMethod('!~*'),
-        concat: binaryMethod('||'),
-        key: binaryMethod('->'),
-        keyText: binaryMethod('->>'),
-        path: binaryMethod('#>'),
-        pathText: binaryMethod('#>>'),
-        like: binaryMethod('LIKE'),
-        rlike: binaryMethod('RLIKE'),
-        notLike: binaryMethod('NOT LIKE'),
-        ilike: binaryMethod('ILIKE'),
-        notIlike: binaryMethod('NOT ILIKE'),
-        match: binaryMethod('@@'),
-        in: inMethod,
-        notIn: notInMethod,
-        between: ternaryMethod('BETWEEN', 'AND'),
-        notBetween: ternaryMethod('NOT BETWEEN', 'AND'),
-        at: atMethod,
-        contains: binaryMethod('@>'),
-        containedBy: binaryMethod('<@'),
-        containsKey: binaryMethod('?'),
-        overlap: binaryMethod('&&'),
-        slice: sliceMethod,
-        cast: castMethod,
-        descending: orderMethod('DESC'),
-        case: caseMethod
     };
 };
 
-export interface IValueExpressionMixinBase {
-    isNull(): PostfixUnaryNode;
-    isNotNull(): PostfixUnaryNode;
-    equals(val: any): BinaryNode;
-    notEquals(val: any): BinaryNode;
-    gt(val: any): BinaryNode;
-    gte(val: any): BinaryNode;
-    lt(val: any): BinaryNode;
-    lte(val: any): BinaryNode;
-    plus(val: any): BinaryNode;
-    minus(val: any): BinaryNode;
-    multiply(val: any): BinaryNode;
-    divide(val: any): BinaryNode;
-    modulo(val: any): BinaryNode;
-    leftShift(val: any): BinaryNode;
-    rightShift(val: any): BinaryNode;
-    bitwiseAnd(val: any): BinaryNode;
-    bitwiseNot(val: any): BinaryNode;
-    bitwiseOr(val: any): BinaryNode;
-    bitwiseXor(val: any): BinaryNode;
-    regex(val: any): BinaryNode;
-    iregex(val: any): BinaryNode;
-    regexp(val: any): BinaryNode;
-    notRegex(val: any): BinaryNode;
-    notIregex(val: any): BinaryNode;
-    concat(val: any): BinaryNode;
-    key(val: any): BinaryNode;
-    keyText(val: any): BinaryNode;
-    path(val: any): BinaryNode;
-    pathText(val: any): BinaryNode;
-    like(val: any): BinaryNode;
-    rlike(val: any): BinaryNode;
-    notLike(val: any): BinaryNode;
-    ilike(val: any): BinaryNode;
-    notIlike(val: any): BinaryNode;
-    match(val: any): BinaryNode;
-    in(val: any): InNode;
-    notIn(val: any): NotInNode;
-    between(middle: any, right: any): TernaryNode;
-    notBetween(middle: any, right: any): TernaryNode;
-    at(index: any): AtNode;
-    contains(val: any): BinaryNode;
-    containedBy(val: any): BinaryNode;
-    containsKey(val: any): BinaryNode;
-    overlap(val: any): BinaryNode;
-    slice(start: number, end: number): SliceNode;
-    cast(dataType: string): CastNode;
-    descending(): OrderByValueNode;
-    case(whenList: any[], thenList: any[], elseBranch?: any): CaseNode;
+const binaryMethod = (operator: string) => {
+    return function(this: INodeable, val: any): BinaryNode {
+        const ctor = classMap.get('BINARY')!;
+        return new ctor({
+            left: this.toNode(),
+            operator,
+            right: processParamOrParams(val)
+        });
+    };
+};
+
+const ternaryMethod = (operator: string, separator: string) => {
+    return function(this: INodeable, middle: any, right: any): TernaryNode {
+        const ctor = classMap.get('TERNARY')!;
+        return new ctor({
+            left: this.toNode(),
+            operator,
+            middle: processParam(middle),
+            separator,
+            right: processParam(right)
+        });
+    };
+};
+
+const orderMethod = (direction: string) => {
+    return function(this: INodeable): OrderByValueNode {
+        const ctor = classMap.get('ORDER BY VALUE')!;
+        return new ctor({
+            value: this.toNode(),
+            direction: direction ? new TextNode(direction) : undefined
+        });
+    };
+};
+
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+export function ValueExpressionBaseMixin<TBase extends abstract new (...args: any[]) => INodeable>(Base: TBase) {
+    abstract class ValueExpressionBaseClass extends Base {
+
+        public in(val: any) : InNode {
+            const ctor = classMap.get('IN')!;
+            return new ctor({
+                left: this.toNode(),
+                right: processParamOrParams(val)
+            });
+        }
+    
+        public notIn(val: any): NotInNode {
+            const ctor = classMap.get('NOT IN')!;
+            return new ctor({
+                left: this.toNode(),
+                right: processParamOrParams(val)
+            });
+        }
+    
+        public at(index: any): AtNode {
+            const ctor = classMap.get('AT')!;
+            return new ctor(this.toNode(), processParam(index));
+        }
+    
+        public slice(start: number, end: number): SliceNode {
+            const ctor = classMap.get('SLICE')!;
+            return new ctor(this.toNode(), processParam(start), processParam(end));
+        }
+    
+        public cast(dataType: string): CastNode {
+            const ctor = classMap.get('CAST')!;
+            return new ctor(this.toNode(), dataType);
+        }
+        
+        public case(whenList: any[], thenList: any[], elseBranch?: any): CaseNode {
+            const ctor = classMap.get('CASE')!;
+            if (undefined !== elseBranch) {
+                elseBranch = processParam(elseBranch);
+            }
+            return new ctor({
+                whenList: processParams(whenList),
+                thenList: processParams(thenList),
+                else: elseBranch
+            });
+        }
+    
+        public isNull = postfixUnaryMethod('IS NULL');
+        public isNotNull = postfixUnaryMethod('IS NOT NULL');
+        public equals = binaryMethod('=');
+        public notEquals = binaryMethod('<>');
+        public gt = binaryMethod('>');
+        public gte = binaryMethod('>=');
+        public lt = binaryMethod('<');
+        public lte = binaryMethod('<=');
+        public plus = binaryMethod('+');
+        public minus = binaryMethod('-');
+        public multiply = binaryMethod('*');
+        public divide = binaryMethod('/');
+        public modulo = binaryMethod('%');
+        public leftShift = binaryMethod('<<');
+        public rightShift = binaryMethod('>>');
+        public bitwiseAnd = binaryMethod('&');
+        public bitwiseNot = binaryMethod('~');
+        public bitwiseOr = binaryMethod('|');
+        public bitwiseXor = binaryMethod('#');
+        public regex = binaryMethod('~');
+        public iregex = binaryMethod('~*');
+        public regexp = binaryMethod('REGEXP');
+        public notRegex = binaryMethod('!~');
+        public notIregex = binaryMethod('!~*');
+        public concat = binaryMethod('||');
+        public key = binaryMethod('->');
+        public keyText = binaryMethod('->>');
+        public path = binaryMethod('#>');
+        public pathText = binaryMethod('#>>');
+        public like = binaryMethod('LIKE');
+        public rlike = binaryMethod('RLIKE');
+        public notLike = binaryMethod('NOT LIKE');
+        public ilike = binaryMethod('ILIKE');
+        public notIlike = binaryMethod('NOT ILIKE');
+        public match = binaryMethod('@@');
+        public between = ternaryMethod('BETWEEN', 'AND');
+        public notBetween = ternaryMethod('NOT BETWEEN', 'AND');
+        public contains = binaryMethod('@>');
+        public containedBy = binaryMethod('<@');
+        public containsKey = binaryMethod('?');
+        public overlap = binaryMethod('&&');
+        public descending = orderMethod('DESC');
+    }
+    return ValueExpressionBaseClass;
 }
 
-export interface IValueExpressionMixin extends IValueExpressionMixinBase {
-    or(val: any): BinaryNode;
-    and(val: any): BinaryNode;
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+export function ValueExpressionMixin<TBase extends abstract new (...args: any[]) => INodeable>(Base: TBase) {
+    abstract class ValueExpressionClass extends ValueExpressionBaseMixin(Base) {
+        public or = binaryMethod('OR');
+        public and = binaryMethod('AND');
+    }
+    return ValueExpressionClass;
 }
+
+export const ValueExpressionBaseNode = ValueExpressionBaseMixin(Node);
+export const ValueExpressionNode = ValueExpressionMixin(Node);

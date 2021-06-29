@@ -1,7 +1,5 @@
-'use strict';
-
-import * as Harness from './support';
-import { Sql } from '../../lib';
+import * as Harness from './support.js';
+import { Sql } from '../../dist/lib.js';
 const post = Harness.definePostTable();
 const user = Harness.defineUserTable();
 const customerAlias = Harness.defineCustomerAliasTable();

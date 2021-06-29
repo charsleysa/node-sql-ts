@@ -1,44 +1,43 @@
-'use strict';
-
 import assert from 'assert';
 
-import {
-    AliasNode,
-    AlterNode,
-    BinaryNode,
-    CascadeNode,
-    CaseNode,
-    ColumnNode,
-    CreateIndexNode,
-    CreateNode,
-    DropIndexNode,
-    DropNode,
-    IndexesNode,
-    ModifierNode,
-    Node,
-    OnConflictNode,
-    ParameterNode,
-    ReplaceNode,
-    RestrictNode,
-    ReturningNode,
-    TableNode
-} from '../node';
-import { Postgres } from './postgres';
+import { AliasNode } from '../node/alias.js';
+import { AlterNode } from '../node/alter.js';
+import { BinaryNode } from '../node/binary.js';
+import { CascadeNode } from '../node/cascade.js';
+import { CaseNode } from '../node/case.js';
+import { ColumnNode } from '../node/column.js';
+import { CreateNode } from '../node/create.js';
+import { CreateIndexNode } from '../node/createIndex.js';
+import { DropNode } from '../node/drop.js';
+import { DropIndexNode } from '../node/dropIndex.js';
+import { IndexesNode } from '../node/indexes.js';
+import { ModifierNode } from '../node/modifier.js';
+import { Node } from '../node/node.js';
+import { OnConflictNode } from '../node/onConflict.js';
+import { ParameterNode } from '../node/parameter.js';
+import { ReplaceNode } from '../node/replace.js';
+import { RestrictNode } from '../node/restrict.js';
+import { ReturningNode } from '../node/returning.js';
+import { TableNode } from '../node/table.js';
+import { Dialect } from './dialect.js';
 
-export class Oracle extends Postgres {
-    protected myClass = Oracle;
-
-    protected aliasText = ' ';
+export class Oracle extends Dialect<any> {
     constructor(config: any) {
         super(config);
+        this.aliasText = ' ';
     }
+
+    protected createSubInstance() {
+        return new Oracle(this.config);
+    }
+
     public _getParameterValue(
-        value: null | boolean | number | string | any[] | Date | Buffer | object,
+        value: null | boolean | number | string | any[] | Date | Buffer | Record<string, unknown>,
         quoteChar?: string
     ): string | number {
         return Buffer.isBuffer(value)
             ? "utl_raw.cast_to_varchar2(hextoraw('" + value.toString('hex') + "'))"
-            : super._getParameterValue(value);
+            : super._getParameterValue(value, quoteChar);
     }
     public _getParameterPlaceholder(index: string | number, value: any): string {
         return `:${index}`;
@@ -163,13 +162,13 @@ export class Oracle extends Postgres {
         return createText;
     }
     public visitBinary(binaryNode: BinaryNode): string[] {
-        if (binaryNode.operator === '@@') {
+        if (binaryNode.operator === '@@' && !Array.isArray(binaryNode.right)) {
             let text = '(INSTR (' + this.visit(binaryNode.left) + ', ';
             text += this.visit(binaryNode.right);
             text += ') > 0)';
             return [text];
         }
-        if (!isRightSideArray(binaryNode)) {
+        if (!Array.isArray(binaryNode.right)) {
             return super.visitBinary(binaryNode);
         }
         if (binaryNode.operator === 'IN' || binaryNode.operator === 'NOT IN') {
@@ -282,11 +281,7 @@ export class Oracle extends Postgres {
             }
             // dealing with a true/false value
             const val = (node as ParameterNode).value();
-            if (val === true) {
-                return '1=1';
-            } else {
-                return '0=1';
-            }
+            return val === true ? '1=1' : '0=1';
         };
         assert(caseNode.whenList.length === caseNode.thenList.length);
         let text = '(CASE';
@@ -306,7 +301,7 @@ export class Oracle extends Postgres {
     }
 }
 
-function isCreateIfNotExists(createNode: CreateNode) {
+const isCreateIfNotExists = (createNode: CreateNode) => {
     if (createNode.nodes.length === 0) {
         return false;
     }
@@ -316,11 +311,11 @@ function isCreateIfNotExists(createNode: CreateNode) {
     return true;
 }
 
-function isCreateTemporary(createNode: CreateNode) {
+const isCreateTemporary = (createNode: CreateNode) => {
     return createNode.options.isTemporary;
 }
 
-function isDropIfExists(dropNode: DropNode) {
+const isDropIfExists = (dropNode: DropNode) => {
     if (dropNode.nodes.length === 0) {
         return false;
     }
@@ -330,12 +325,7 @@ function isDropIfExists(dropNode: DropNode) {
     return true;
 }
 
-// SQL Server does not support array expressions except in the IN clause.
-function isRightSideArray(binaryNode: BinaryNode) {
-    return Array.isArray(binaryNode.right);
-}
-
-function isCountStarExpression(columnNode: ColumnNode) {
+const isCountStarExpression = (columnNode: ColumnNode) => {
     if (!columnNode.aggregator) {
         return false;
     }
@@ -348,7 +338,7 @@ function isCountStarExpression(columnNode: ColumnNode) {
     return true;
 }
 
-function isAlterAddColumn(alterNode: AlterNode) {
+const isAlterAddColumn = (alterNode: AlterNode) => {
     if (alterNode.nodes.length === 0) {
         return false;
     }
@@ -358,7 +348,7 @@ function isAlterAddColumn(alterNode: AlterNode) {
     return true;
 }
 
-function isAlterDropColumn(alterNode: AlterNode) {
+const isAlterDropColumn = (alterNode: AlterNode) => {
     if (alterNode.nodes.length === 0) {
         return false;
     }

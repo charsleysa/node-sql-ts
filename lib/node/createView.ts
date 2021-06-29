@@ -1,6 +1,4 @@
-'use strict';
-
-import { Node } from '.';
+import { Node } from './node.js';
 
 export class CreateViewNode extends Node {
     public options: { viewName: string };

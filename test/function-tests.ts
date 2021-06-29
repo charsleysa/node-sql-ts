@@ -1,7 +1,6 @@
-'use strict';
 import { strictEqual } from 'assert';
 
-import { Sql } from '../lib';
+import { Sql } from '../dist/lib.js';
 const instance = new Sql('postgres');
 
 const user = instance.define<{ id: string; email: string; name: string; howOld: number }>({

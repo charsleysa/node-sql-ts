@@ -1,7 +1,5 @@
-'use strict';
-
 import assert from 'assert';
-import * as Harness from './support';
+import * as Harness from './support.js';
 const post = Harness.definePostTable();
 
 // Null

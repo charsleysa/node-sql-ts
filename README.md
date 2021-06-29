@@ -130,14 +130,15 @@ There are a **lot** more examples included in the [test/dialects](https://github
 
 We **love** contributions.
 
-node-sql wouldn't be anything without all the contributors and collaborators who've worked on it.
+node-sql-ts wouldn't be anything without all the contributors and collaborators who've worked on it.
 If you'd like to become a collaborator here's how it's done:
 
 1. fork the repo
 2. `git pull https://github.com/(your_username)/node-sql-ts`
 3. `cd node-sql-ts`
-4. `npm install`
-5. `npm test`
+4. `npm install --global rollup`
+5. `npm install`
+6. `npm test`
 
 At this point the tests should pass for you. If they don't pass please open an issue with the output or you can even send me an email directly.
 My email address is on my github profile and also on every commit I contributed in the repo.

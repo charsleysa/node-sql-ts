@@ -1,18 +1,10 @@
-'use strict';
-
-import { Node } from '.';
-import { INodeable, instanceofINodeable } from '../nodeable';
+import { INodeable, instanceofINodeable } from '../nodeable.js';
+import { Node } from './node.js';
 
 export class ParameterNode extends Node {
     // wrap a value as a parameter node if value is not already a node
     public static getNodeOrParameterNode(value?: INodeable | unknown) {
-        if (value && instanceofINodeable(value)) {
-            // use toNode
-            return value.toNode();
-        } else {
-            // wrap as parameter node
-            return new ParameterNode(value);
-        }
+        return value && instanceofINodeable(value) ? value.toNode() : new ParameterNode(value);
     }
     public isExplicit: boolean;
     private val: any;

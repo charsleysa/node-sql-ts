@@ -1,6 +1,5 @@
-'use strict';
-
-import { ModifierNode, Node } from '.';
+import { ModifierNode } from './modifier.js';
+import { Node } from './node.js';
 
 export class SelectNode extends Node {
     public msSQLLimitNode?: ModifierNode;

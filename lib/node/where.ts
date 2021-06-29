@@ -1,10 +1,10 @@
-'use strict';
+import { INodeable, instanceofINodeable } from '../nodeable.js';
+import { Table } from '../table.js';
+import { BinaryNode } from './binary.js';
+import { Node } from './node.js';
+import { TextNode } from './text.js';
 
-import { BinaryNode, Node, TextNode } from '.';
-import { INodeable, instanceofINodeable } from '../nodeable';
-import { Table } from '../table';
-
-const normalizeNode = (table: Table<unknown>, node: Node[] | Node | INodeable | object | string): Node => {
+const normalizeNode = (table: Table<unknown>, node: Node[] | Node | INodeable | Record<string, unknown> | string): Node => {
     if (typeof node === 'string') {
         return new TextNode(`(${node})`);
     } else if (Array.isArray(node)) {
@@ -39,12 +39,12 @@ export class WhereNode extends Node {
         this.table = table;
     }
 
-    public add(node: Node[] | Node | INodeable | object | string) {
+    public add(node: Node[] | Node | INodeable | Record<string, unknown> | string) {
         const add = normalizeNode(this.table, node);
         return super.add(add);
     }
 
-    public or(other: Node | object | string): void {
+    public or(other: Node | Record<string, unknown> | string): void {
         const right = normalizeNode(this.table, other);
         // calling 'or' without an initial 'where'
         if (!this.nodes.length) {
@@ -60,7 +60,7 @@ export class WhereNode extends Node {
         }
     }
 
-    public and(other: Node[] | Node | object | string): void {
+    public and(other: Node[] | Node | Record<string, unknown> | string): void {
         const right = normalizeNode(this.table, other);
         this.nodes.push(
             new BinaryNode({

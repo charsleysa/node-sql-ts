@@ -1,25 +1,17 @@
-'use strict';
+import { AliasMixin } from './alias.js';
+import { Node } from './node.js';
+import { classMap, ValueExpressionNode } from './_internal.js';
 
-import extend from 'lodash/extend';
-import { AliasNode, IAliasMixin, IValueExpressionMixin, Node, valueExpressionMixin } from '.';
-
-let valueExpressionMixed = false;
-export class AtNode extends Node {
+export class AtNode extends ValueExpressionNode {
     public value: Node;
     public index: Node;
     constructor(value: Node, index: Node) {
         super('AT');
         this.value = value;
         this.index = index;
-        // Delay mixin to runtime, when all nodes have been defined, and
-        // mixin only once. ValueExpressionMixin has circular dependencies.
-        if (!valueExpressionMixed) {
-            valueExpressionMixed = true;
-            extend(AtNode.prototype, valueExpressionMixin());
-        }
     }
+
+    public as = AliasMixin.as;
 }
 
-extend(AtNode.prototype, AliasNode.AliasMixin);
-
-export interface AtNode extends IValueExpressionMixin, IAliasMixin {}
+classMap.set('AT', AtNode);

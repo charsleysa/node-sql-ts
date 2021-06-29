@@ -1,10 +1,6 @@
-'use strict';
 import assert, { strictEqual, ok, throws, doesNotThrow, notStrictEqual } from 'assert';
 
-import { Table } from '../lib/table';
-import { Column } from '../lib/column';
-import { Sql } from '../lib';
-import { ColumnNode, ModifierNode, ParameterNode } from '../lib/node';
+import { Table, Column, Sql, ColumnNode, ModifierNode, ParameterNode } from '../dist/lib.js';
 
 suite('table', function() {
     const table = new Table({

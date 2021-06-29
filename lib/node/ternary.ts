@@ -1,10 +1,8 @@
-'use strict';
+import { AliasMixin } from './alias.js';
+import { Node } from './node.js';
+import { classMap, ValueExpressionNode } from './_internal.js';
 
-import extend from 'lodash/extend';
-import { AliasNode, IAliasMixin, IValueExpressionMixin, Node, valueExpressionMixin } from '.';
-
-let valueExpressionMixed = false;
-export class TernaryNode extends Node {
+export class TernaryNode extends ValueExpressionNode {
     public left: Node;
     public middle: Node;
     public operator: string;
@@ -17,16 +15,9 @@ export class TernaryNode extends Node {
         this.operator = config.operator;
         this.right = config.right;
         this.separator = config.separator;
-
-        // Delay mixin to runtime, when all nodes have been defined, and
-        // mixin only once. ValueExpressionMixin has circular dependencies.
-        if (!valueExpressionMixed) {
-            valueExpressionMixed = true;
-            extend(TernaryNode.prototype, valueExpressionMixin());
-        }
     }
+
+    public as = AliasMixin.as;
 }
 
-extend(TernaryNode.prototype, AliasNode.AliasMixin);
-
-export interface TernaryNode extends IValueExpressionMixin, IAliasMixin {}
+classMap.set('TERNARY', TernaryNode);

@@ -1,6 +1,6 @@
-'use strict';
-
-import { Node, TextNode } from '.';
+import { Node } from './node.js';
+import { TextNode } from './text.js';
+import { classMap } from './valueExpression.js';
 
 export class OrderByValueNode extends Node {
     public value: Node;
@@ -11,3 +11,5 @@ export class OrderByValueNode extends Node {
         this.direction = config.direction;
     }
 }
+
+classMap.set('ORDER BY VALUE', OrderByValueNode);

@@ -1,9 +1,8 @@
 {
     "compilerOptions": {
         "target": "es2016",
-        "module": "es2020",
+        "module": "esnext",
         "moduleResolution": "node",
-        "outDir": "./dist/esm",
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "noEmitHelpers": true,
@@ -17,11 +16,9 @@
         "removeComments": false,
         "noImplicitReturns": true,
         "declaration": true,
-        "baseUrl": "./lib",
         "typeRoots": ["@types", "node_modules/@types"]
     },
-    "include": ["./lib/**/*.ts", "./lib/**/*.js", "./lib/**/*.d.ts"],
-    "exclude": ["node_modules"],
+    "exclude": ["node_modules", "./dist"],
     "compileOnSave": true,
     "buildOnSave": true
 }

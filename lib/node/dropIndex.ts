@@ -1,8 +1,6 @@
-'use strict';
-
-import { Node } from '.';
-import { Column } from '../column';
-import { Table } from '../table';
+import { Column } from '../column.js';
+import { Table } from '../table.js';
+import { Node } from './node.js';
 
 export class DropIndexNode extends Node {
     public table: Table<unknown>;

@@ -1,4 +1,7 @@
 {
-    "extends": "../tsconfig.cjs.json",
-    "include": ["./**/*.ts", "./**/*.js", "./**/*.d.ts"]
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "../spec"
+    },
+    "include": ["./*.ts", "./**/*.ts", "./**/*.js", "./**/*.d.ts"]
 }

@@ -1,4 +1,6 @@
-import { Node, ParameterNode, Query } from '.';
+import { Node } from './node.js';
+import { ParameterNode } from './parameter.js';
+import { Query } from './query.js';
 
 export class ModifierNode extends Node {
     public query: Query<unknown>;

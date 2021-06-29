@@ -12,41 +12,52 @@
         "type": "git",
         "url": "git://github.com/charsleysa/node-sql-ts.git"
     },
-    "main": "dist/cjs/",
-    "module": "dist/esm/",
-    "types": "dist/esm/index.d.ts",
+    "type": "module",
+    "exports": {
+        "import": "./dist/lib.js"
+    },
+    "main": "./dist/lib.js",
+    "types": "./dist/lib.d.ts",
     "scripts": {
-        "pretest": "tslint --project . && tslint --project ./test",
-        "test": "TS_NODE_PROJECT='test/tsconfig.json' mocha",
-        "lint": "tslint --project .",
-        "tsc": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
-        "release:major": "npm run test && npm run tsc && npm version major -m \"chore: release\" && git push origin master --tags && npm publish",
-        "release:minor": "npm run test && npm run tsc && npm version minor -m \"chore: release\" && git push origin master --tags && npm publish",
-        "release:patch": "npm run test && npm run tsc && npm version patch -m \"chore: release\" && git push origin master --tags && npm publish"
+        "pretest": "eslint --ext .ts ./lib && eslint --ext .ts ./test && rollup -c && tsc -p ./test/tsconfig.json",
+        "test": "mocha",
+        "lint": "eslint --ext .ts ./lib && eslint --ext .ts ./test",
+        "build": "rollup -c",
+        "release:major": "npm run test && npm run build && npm version major -m \"chore: release\" && git push origin master --tags && npm publish",
+        "release:minor": "npm run test && npm run build && npm version minor -m \"chore: release\" && git push origin master --tags && npm publish",
+        "release:patch": "npm run test && npm run build && npm version patch -m \"chore: release\" && git push origin master --tags && npm publish"
     },
     "engines": {
-        "node": "^12.0.0 || >=14.0.0"
+        "node": "^12.20.0 || >=14.15.0"
     },
     "dependencies": {
-        "lodash": "^4.17.20",
+        "lodash": "^4.17.21",
         "sliced": "~1.0.x",
-        "tslib": "~2.0.1"
+        "tslib": "~2.3.0"
     },
     "devDependencies": {
-        "@types/lodash": "^4.14.160",
-        "@types/mocha": "^8.0.3",
-        "@types/node": "^12.0.0",
-        "mocha": "^8.1.2",
-        "ts-node": "^9.0.0",
-        "tslint": "^6.1.3",
-        "tslint-config-prettier": "^1.18.0",
-        "typescript": "^4.0.2"
+        "@rollup/plugin-typescript": "^8.2.1",
+        "@types/lodash": "^4.14.170",
+        "@types/mocha": "^8.2.2",
+        "@types/node": "^14.17.4",
+        "@typescript-eslint/eslint-plugin": "^4.28.0",
+        "@typescript-eslint/parser": "^4.28.0",
+        "eslint": "^7.29.0",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-import": "^2.23.4",
+        "eslint-plugin-jsdoc": "^35.4.0",
+        "eslint-plugin-prefer-arrow": "^1.2.3",
+        "eslint-plugin-unicorn": "^33.0.1",
+        "mocha": "^9.0.1",
+        "rollup-plugin-delete": "^2.0.0",
+        "rollup-plugin-dts": "^3.0.2",
+        "ts-node": "^10.0.0",
+        "typescript": "^4.3.4"
     },
     "mocha": {
         "reporter": "dot",
         "ui": "tdd",
-        "require": "ts-node/register",
-        "watch-extensions": "tsx,ts",
-        "spec": "test/*.ts"
+        "watch-extensions": "js",
+        "spec": "spec/**/*.js"
     }
 }

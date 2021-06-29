@@ -1,6 +1,4 @@
-'use strict';
-
-import * as Harness from './support';
+import * as Harness from './support.js';
 const customerComposite = Harness.defineCustomerCompositeTable();
 
 Harness.test({

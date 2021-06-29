@@ -1,7 +1,5 @@
-'use strict';
-
 import { strictEqual, throws } from 'assert';
-import { Sql } from '../lib';
+import { Sql } from '../dist/lib.js';
 
 const sql = new Sql();
 

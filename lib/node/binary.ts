@@ -1,28 +1,19 @@
-'use strict';
+import { AliasMixin } from './alias.js';
+import { Node } from './node.js';
+import { classMap, ValueExpressionNode } from './_internal.js';
 
-import extend from 'lodash/extend';
-import { AliasNode, IAliasMixin, IValueExpressionMixin, Node, valueExpressionMixin } from '.';
-
-let valueExpressionMixed = false;
-export class BinaryNode extends Node {
+export class BinaryNode extends ValueExpressionNode {
     public left: Node;
     public operator: string;
-    public right: Node;
-    constructor(config: { left: Node; operator: string; right: Node }) {
+    public right: Node | Node[];
+    constructor(config: { left: Node; operator: string; right: Node | Node[] }) {
         super('BINARY');
         this.left = config.left;
         this.operator = config.operator;
         this.right = config.right;
-
-        // Delay mixin to runtime, when all nodes have been defined, and
-        // mixin only once. ValueExpressionMixin has circular dependencies.
-        if (!valueExpressionMixed) {
-            valueExpressionMixed = true;
-            extend(BinaryNode.prototype, valueExpressionMixin());
-        }
     }
+
+    public as = AliasMixin.as;
 }
 
-extend(BinaryNode.prototype, AliasNode.AliasMixin);
-
-export interface BinaryNode extends IValueExpressionMixin, IAliasMixin {}
+classMap.set('BINARY', BinaryNode);
