@@ -564,7 +564,7 @@ export class Query<T> extends ValueExpressionBaseNode {
     }
 }
 
-type SubQueryExtensions<T, C extends Record<string, unknown>> = {
+type SubQueryExtensions<T, C extends Record<string, any>> = {
     join: (other: INodeable) => JoinNode;
 } & {
     columns: Column<unknown>[]
@@ -572,4 +572,4 @@ type SubQueryExtensions<T, C extends Record<string, unknown>> = {
     [P in NonNullable<keyof C>]: Column<C[P]>
 };
 
-export type SubQuery<T, C extends Record<string, unknown>> = Query<T> & SubQueryExtensions<T, C>;
+export type SubQuery<T, C extends Record<string, any>> = Query<T> & SubQueryExtensions<T, C>;

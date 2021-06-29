@@ -195,7 +195,7 @@ export class Table<T> implements INodeable {
         }
         return query;
     }
-    public subQuery<C extends Record<string, unknown>>(alias?: string): SubQuery<T, C> {
+    public subQuery<C extends Record<string, any>>(alias?: string): SubQuery<T, C> {
         // create the query and pass it off
         const query = new Query<T>(this, true) as SubQuery<T, C>;
         query.columns = [];

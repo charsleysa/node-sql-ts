@@ -99,7 +99,7 @@ export abstract class Dialect<ConfigType> {
     }
 
     public _getParameterValue(
-        value: null | boolean | number | string | any[] | Date | Buffer | Record<string, unknown>,
+        value: null | boolean | number | string | any[] | Date | Buffer | Record<string, any>,
         quoteChar?: string
     ): string | number {
         // handle primitives

@@ -105,7 +105,7 @@ export interface CustomerTable {
     name: string;
     age: number;
     income: number;
-    metadata: Record<string, unknown>;
+    metadata: Record<string, any>;
 }
 
 export function defineCustomerTable() {
@@ -117,7 +117,7 @@ export function defineCustomerTable() {
 
 export interface CustomerCompositeTable {
     id: number;
-    info: Record<string, unknown>;
+    info: Record<string, any>;
 }
 
 // This table defines the customer attributes as a composite field
@@ -136,7 +136,7 @@ export interface CustomerAliasTable {
     name_alias: string;
     age_alias: number;
     income_alias: number;
-    metadata_alias: Record<string, unknown>;
+    metadata_alias: Record<string, any>;
 }
 
 export function defineCustomerAliasTable() {

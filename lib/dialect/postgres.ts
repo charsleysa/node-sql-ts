@@ -47,7 +47,7 @@ export class Postgres extends Dialect<{ nullOrder?: string }> {
     }
 
     public _getParameterValue(
-        value: null | boolean | number | string | any[] | Date | Buffer | Record<string, unknown>,
+        value: null | boolean | number | string | any[] | Date | Buffer | Record<string, any>,
         quoteChar?: string
     ): string | number {
         if ('object' === typeof value && Array.isArray(value)) {
