@@ -12,6 +12,10 @@ jobs:
               uses: actions/setup-node@v1
               with:
                   node-version: '14'
+            - name: npm install --global rollup
+              run: npm install --global rollup
+              env:
+                  CI: true
             - name: npm install
               run: npm install
               env:
