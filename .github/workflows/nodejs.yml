@@ -16,7 +16,7 @@ jobs:
               run: npm install
               env:
                   CI: true
-            - name: npm run test && npm run tsc
-              run: npm run test && npm run tsc
+            - name: npm run test
+              run: npm run test
               env:
                   CI: true
