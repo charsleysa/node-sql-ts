@@ -1,3 +1,5 @@
+.github/
+.vscode/
 @types/
 lib/
 node_modules/
@@ -8,4 +10,6 @@ test/
 .prettierrc
 .travis.yml
 runtests.js
+rollup.config.js
+tsconfig.build.json
 tsconfig.json

@@ -13,10 +13,7 @@
         "url": "git://github.com/charsleysa/node-sql-ts.git"
     },
     "type": "module",
-    "exports": {
-        "import": "./dist/lib.js"
-    },
-    "main": "./dist/lib.js",
+    "exports": "./dist/lib.js",
     "types": "./dist/lib.d.ts",
     "scripts": {
         "pretest": "eslint --ext .ts ./lib && eslint --ext .ts ./test && rollup -c && tsc -p ./test/tsconfig.json",
