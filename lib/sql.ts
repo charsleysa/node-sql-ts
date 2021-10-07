@@ -8,6 +8,7 @@ import { ArrayCallNode } from './node/arrayCall.js';
 import { FunctionCallNode } from './node/functionCall.js';
 import { IntervalNode } from './node/interval.js';
 import { LiteralNode } from './node/literal.js';
+import { ParameterNode } from './node/parameter.js';
 import { Query } from './node/query.js';
 import { RowCallNode } from './node/rowCall.js';
 import { Table, TableWithColumns } from './table.js';
@@ -82,5 +83,9 @@ export class Sql {
     // Create a literal
     public literal(literal: any): LiteralNode {
         return new LiteralNode(literal);
+    }
+    // Create a parameter
+    public parameter(value: any): ParameterNode {
+        return new ParameterNode(value);
     }
 }
