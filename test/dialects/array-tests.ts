@@ -62,6 +62,15 @@ Harness.test({
     params: [2]
 });
 
+Harness.test({
+    query: post.select(post.tags.overlap(instance.parameter(['nodejs', 'js']))),
+    pg: {
+        text: 'SELECT ("post"."tags" && $1) FROM "post"',
+        string: 'SELECT ("post"."tags" && \'{"nodejs","js"}\') FROM "post"'
+    },
+    params: [['nodejs', 'js']]
+});
+
 // Array literals
 Harness.test({
     query: post.select(instance.array(1, 2, 3)),

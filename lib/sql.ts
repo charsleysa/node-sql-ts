@@ -6,7 +6,7 @@ import { Column } from './column';
 import { ColumnDefinition, SQLDialects, TableDefinition } from './configTypes';
 import { DEFAULT_DIALECT, getDialect } from './dialect';
 import * as functions from './functions';
-import { ArrayCallNode, FunctionCallNode, RowCallNode, IntervalNode, LiteralNode, Query } from './node';
+import { ArrayCallNode, FunctionCallNode, RowCallNode, IntervalNode, LiteralNode, Query, ParameterNode } from './node';
 import { Table, TableWithColumns } from './table';
 
 export class Sql {
@@ -80,5 +80,9 @@ export class Sql {
     // Create a literal
     public literal(literal: any): LiteralNode {
         return new LiteralNode(literal);
+    }
+    // Create a parameter
+    public parameter(value: any): ParameterNode {
+        return new ParameterNode(value);
     }
 }
