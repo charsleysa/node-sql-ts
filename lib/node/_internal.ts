@@ -7,5 +7,6 @@ export * from './in.js';
 export * from './notIn.js';
 export * from './orderByValue.js';
 export * from './postfixUnary.js';
+export * from './prefixUnary.js';
 export * from './slice.js';
 export * from './ternary.js';

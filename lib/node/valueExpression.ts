@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { INodeable } from '../nodeable.js';
+import { INodeable, instanceofINodeable } from '../nodeable.js';
 import type {
     AtNode,
     BinaryNode,
@@ -9,6 +9,7 @@ import type {
     NotInNode,
     OrderByValueNode,
     PostfixUnaryNode,
+    PrefixUnaryNode,
     SliceNode,
     TernaryNode
 } from './_internal.js';
@@ -36,6 +37,19 @@ const processParamOrParams = (val: any): Node | Node[] => {
 };
 
 // Builder functions
+
+const prefixUnaryMethod = (operator: string) => {
+    return function(this: any): PrefixUnaryNode {
+        if (!instanceofINodeable(this)) {
+            throw new Error('expected prefixUnaryMethod to be bound to INodeable');
+        }
+        const ctor = classMap.get('PREFIX UNARY')!;
+        return new ctor({
+            left: this.toNode(),
+            operator
+        });
+    };
+};
 
 const postfixUnaryMethod = (operator: string) => {
     return function(this: INodeable): PostfixUnaryNode {
@@ -78,6 +92,27 @@ const orderMethod = (direction: string) => {
             value: this.toNode(),
             direction: direction ? new TextNode(direction) : undefined
         });
+    };
+};
+
+const genericMethod = (operator: string, separator?: string) => {
+    return function(this: any, ...args: any[]) {
+        if (!instanceofINodeable(this)) {
+            throw new Error('expected genericMethod to be bound to INodeable');
+        }
+        switch (arguments.length) {
+            case 0:
+                return postfixUnaryMethod(operator).call(this);
+            case 1:
+                return binaryMethod(operator).call(this, args[0]);
+            case 2:
+                if (!separator) {
+                    throw new Error('expected fewer arguments or a separator');
+                }
+                return ternaryMethod(operator, separator).call(this, args[0], args[1]);
+            default:
+                throw new Error('expected 1-3 arguments');
+        }
     };
 };
 
@@ -127,7 +162,15 @@ export function ValueExpressionBaseMixin<TBase extends abstract new (...args: an
                 else: elseBranch
             });
         }
-    
+
+        public op(...args: Parameters<typeof genericMethod>): ReturnType<typeof genericMethod> {
+            return genericMethod(...args).bind(this);
+        }
+
+        public preOp(...args: Parameters<typeof prefixUnaryMethod>): ReturnType<typeof prefixUnaryMethod> {
+            return prefixUnaryMethod(...args).bind(this);
+        }
+
         public isNull = postfixUnaryMethod('IS NULL');
         public isNotNull = postfixUnaryMethod('IS NOT NULL');
         public equals = binaryMethod('=');
