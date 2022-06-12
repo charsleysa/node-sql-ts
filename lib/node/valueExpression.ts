@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { INodeable, instanceofINodeable } from '../nodeable.js';
+import { INodeable } from '../nodeable.js';
 import type {
     AtNode,
     BinaryNode,
@@ -38,45 +38,42 @@ const processParamOrParams = (val: any): Node | Node[] => {
 
 // Builder functions
 
-const prefixUnaryMethod = (operator: string) => {
-    return function(this: any): PrefixUnaryNode {
-        if (!instanceofINodeable(this)) {
-            throw new Error('expected prefixUnaryMethod to be bound to INodeable');
-        }
+export const prefixUnaryOperator = (operator: string) => {
+    return (left: any): PrefixUnaryNode => {
         const ctor = classMap.get('PREFIX UNARY')!;
         return new ctor({
-            left: this.toNode(),
+            left: processParam(left),
             operator
         });
     };
 };
 
-const postfixUnaryMethod = (operator: string) => {
-    return function(this: INodeable): PostfixUnaryNode {
+export const postfixUnaryOperator = (operator: string) => {
+    return (left: any): PostfixUnaryNode => {
         const ctor = classMap.get('POSTFIX UNARY')!;
         return new ctor({
-            left: this.toNode(),
+            left: processParam(left),
             operator
         });
     };
 };
 
-const binaryMethod = (operator: string) => {
-    return function(this: INodeable, val: any): BinaryNode {
+export const binaryOperator = (operator: string) => {
+    return (left: any, val: any): BinaryNode => {
         const ctor = classMap.get('BINARY')!;
         return new ctor({
-            left: this.toNode(),
+            left: processParam(left),
             operator,
             right: processParamOrParams(val)
         });
     };
 };
 
-const ternaryMethod = (operator: string, separator: string) => {
-    return function(this: INodeable, middle: any, right: any): TernaryNode {
+export const ternaryOperator = (operator: string, separator: string) => {
+    return (left: any, middle: any, right: any): TernaryNode => {
         const ctor = classMap.get('TERNARY')!;
         return new ctor({
-            left: this.toNode(),
+            left: processParam(left),
             operator,
             middle: processParam(middle),
             separator,
@@ -85,6 +82,30 @@ const ternaryMethod = (operator: string, separator: string) => {
     };
 };
 
+const prefixUnaryMethod = (operator: string) => {
+    return function(this: INodeable) {
+        return prefixUnaryOperator(operator)(this)
+    };
+}
+
+const postfixUnaryMethod = (operator: string) => {
+    return function(this: INodeable) {
+        return postfixUnaryOperator(operator)(this)
+    };
+}
+
+const binaryMethod = (operator: string) => {
+    return function(this: INodeable, right: any) {
+        return binaryOperator(operator)(this, right);
+    };
+}
+
+const ternaryMethod = (operator: string, separator: string) => {
+    return function (this: INodeable, middle: any, right: any) {
+        return ternaryOperator(operator, separator)(this, middle, right);
+    };
+}
+
 const orderMethod = (direction: string) => {
     return function(this: INodeable): OrderByValueNode {
         const ctor = classMap.get('ORDER BY VALUE')!;
@@ -92,27 +113,6 @@ const orderMethod = (direction: string) => {
             value: this.toNode(),
             direction: direction ? new TextNode(direction) : undefined
         });
-    };
-};
-
-const genericMethod = (operator: string, separator?: string) => {
-    return function(this: any, ...args: any[]) {
-        if (!instanceofINodeable(this)) {
-            throw new Error('expected genericMethod to be bound to INodeable');
-        }
-        switch (arguments.length) {
-            case 0:
-                return postfixUnaryMethod(operator).call(this);
-            case 1:
-                return binaryMethod(operator).call(this, args[0]);
-            case 2:
-                if (!separator) {
-                    throw new Error('expected fewer arguments or a separator');
-                }
-                return ternaryMethod(operator, separator).call(this, args[0], args[1]);
-            default:
-                throw new Error('expected 1-3 arguments');
-        }
     };
 };
 
@@ -163,13 +163,21 @@ export function ValueExpressionBaseMixin<TBase extends abstract new (...args: an
             });
         }
 
-        public op(...args: Parameters<typeof genericMethod>): ReturnType<typeof genericMethod> {
-            return genericMethod(...args).bind(this);
-        }
+        public prefixUnaryOperator(operator: string) {
+            return prefixUnaryMethod(operator).call(this);
+        };
 
-        public preOp(...args: Parameters<typeof prefixUnaryMethod>): ReturnType<typeof prefixUnaryMethod> {
-            return prefixUnaryMethod(...args).bind(this);
-        }
+        public postfixUnaryOperator(operator: string) {
+            return postfixUnaryMethod(operator).call(this);
+        };
+
+        public binaryOperator(operator: string, right: any) {
+            return binaryMethod(operator).call(this, right);
+        };
+
+        public ternaryOperator(operator: string, middle: any, separator: string, right: any) {
+            return ternaryMethod(operator, separator).call(this, middle, right);
+        };
 
         public isNull = postfixUnaryMethod('IS NULL');
         public isNotNull = postfixUnaryMethod('IS NOT NULL');

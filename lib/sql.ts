@@ -5,13 +5,25 @@ import { ColumnDefinition, SQLDialects, TableDefinition } from './configTypes.js
 import { DEFAULT_DIALECT, getDialect } from './dialect/mapper.js';
 import * as functions from './functions.js';
 import { ArrayCallNode } from './node/arrayCall.js';
+import { BinaryNode } from './node/binary.js';
 import { FunctionCallNode } from './node/functionCall.js';
 import { IntervalNode } from './node/interval.js';
 import { LiteralNode } from './node/literal.js';
+import { Node } from './node/node.js';
 import { ParameterNode } from './node/parameter.js';
+import { PostfixUnaryNode } from './node/postfixUnary';
+import { PrefixUnaryNode } from './node/prefixUnary';
 import { Query } from './node/query.js';
 import { RowCallNode } from './node/rowCall.js';
 import { Table, TableWithColumns } from './table.js';
+import { TernaryNode } from './node/ternary.js';
+import { INodeable } from './nodeable.js';
+import {
+    binaryOperator,
+    postfixUnaryOperator,
+    prefixUnaryOperator,
+    ternaryOperator
+} from './node/valueExpression.js';
 
 export class Sql {
     public functions: functions.StandardFunctions;
@@ -31,6 +43,11 @@ export class Sql {
     public function(...args: any[]): any {
         return this._function(...args);
     }
+    // Define an operator
+    public prefixUnaryOperator = prefixUnaryOperator;
+    public postfixUnaryOperator = postfixUnaryOperator;
+    public binaryOperator = binaryOperator;
+    public ternaryOperator = ternaryOperator;
     // Define a table
     public define<T>(def: TableDefinition): TableWithColumns<T> {
         def = defaults(def || {}, {
