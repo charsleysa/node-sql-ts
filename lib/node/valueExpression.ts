@@ -38,42 +38,32 @@ const processParamOrParams = (val: any): Node | Node[] => {
 
 // Builder functions
 
-export const prefixUnaryOperator = (operator: string) => {
-    return (left: any): PrefixUnaryNode => {
-        const ctor = classMap.get('PREFIX UNARY')!;
-        return new ctor({
-            left: processParam(left),
-            operator
-        });
-    };
-};
-
-export const postfixUnaryOperator = (operator: string) => {
-    return (left: any): PostfixUnaryNode => {
+const postfixUnaryMethod = (operator: string) => {
+    return function(this: INodeable): PostfixUnaryNode {
         const ctor = classMap.get('POSTFIX UNARY')!;
         return new ctor({
-            left: processParam(left),
+            left: this.toNode(),
             operator
         });
     };
 };
 
-export const binaryOperator = (operator: string) => {
-    return (left: any, val: any): BinaryNode => {
+const binaryMethod = (operator: string) => {
+    return function(this: INodeable, val: any): BinaryNode {
         const ctor = classMap.get('BINARY')!;
         return new ctor({
-            left: processParam(left),
+            left: this.toNode(),
             operator,
             right: processParamOrParams(val)
         });
     };
 };
 
-export const ternaryOperator = (operator: string, separator: string) => {
-    return (left: any, middle: any, right: any): TernaryNode => {
+const ternaryMethod = (operator: string, separator: string) => {
+    return function(this: INodeable, middle: any, right: any): TernaryNode {
         const ctor = classMap.get('TERNARY')!;
         return new ctor({
-            left: processParam(left),
+            left: this.toNode(),
             operator,
             middle: processParam(middle),
             separator,
@@ -81,30 +71,6 @@ export const ternaryOperator = (operator: string, separator: string) => {
         });
     };
 };
-
-const prefixUnaryMethod = (operator: string) => {
-    return function(this: INodeable) {
-        return prefixUnaryOperator(operator)(this)
-    };
-}
-
-const postfixUnaryMethod = (operator: string) => {
-    return function(this: INodeable) {
-        return postfixUnaryOperator(operator)(this)
-    };
-}
-
-const binaryMethod = (operator: string) => {
-    return function(this: INodeable, right: any) {
-        return binaryOperator(operator)(this, right);
-    };
-}
-
-const ternaryMethod = (operator: string, separator: string) => {
-    return function (this: INodeable, middle: any, right: any) {
-        return ternaryOperator(operator, separator)(this, middle, right);
-    };
-}
 
 const orderMethod = (direction: string) => {
     return function(this: INodeable): OrderByValueNode {
@@ -163,20 +129,40 @@ export function ValueExpressionBaseMixin<TBase extends abstract new (...args: an
             });
         }
 
-        public prefixUnaryOperator(operator: string) {
-            return prefixUnaryMethod(operator).call(this);
+        public prefixUnaryOperator(operator: string): PrefixUnaryNode {
+            const ctor = classMap.get('PREFIX UNARY')!;
+            return new ctor({
+                left: this.toNode(),
+                operator
+            });
         };
 
-        public postfixUnaryOperator(operator: string) {
-            return postfixUnaryMethod(operator).call(this);
+        public postfixUnaryOperator(operator: string): PostfixUnaryNode {
+            const ctor = classMap.get('POSTFIX UNARY')!;
+            return new ctor({
+                left: this.toNode(),
+                operator
+            });
         };
 
-        public binaryOperator(operator: string, right: any) {
-            return binaryMethod(operator).call(this, right);
+        public binaryOperator(operator: string, right: any): BinaryNode {
+            const ctor = classMap.get('BINARY')!;
+            return new ctor({
+                left: this.toNode(),
+                operator,
+                right: processParamOrParams(right)
+            });
         };
 
-        public ternaryOperator(operator: string, middle: any, separator: string, right: any) {
-            return ternaryMethod(operator, separator).call(this, middle, right);
+        public ternaryOperator(operator: string, middle: any, separator: string, right: any): TernaryNode {
+            const ctor = classMap.get('TERNARY')!;
+            return new ctor({
+                left: this.toNode(),
+                operator,
+                middle: processParam(middle),
+                separator,
+                right: processParam(right)
+            });
         };
 
         public isNull = postfixUnaryMethod('IS NULL');

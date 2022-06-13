@@ -17,7 +17,7 @@ import {
     postfixUnaryOperator,
     prefixUnaryOperator,
     ternaryOperator
-} from './node/valueExpression.js';
+} from './node/operator.js';
 
 export class Sql {
     public functions: functions.StandardFunctions;
