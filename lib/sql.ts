@@ -12,6 +12,12 @@ import { ParameterNode } from './node/parameter.js';
 import { Query } from './node/query.js';
 import { RowCallNode } from './node/rowCall.js';
 import { Table, TableWithColumns } from './table.js';
+import {
+    binaryOperator,
+    postfixUnaryOperator,
+    prefixUnaryOperator,
+    ternaryOperator
+} from './node/operator.js';
 
 export class Sql {
     public functions: functions.StandardFunctions;
@@ -31,6 +37,11 @@ export class Sql {
     public function(...args: any[]): any {
         return this._function(...args);
     }
+    // Define an operator
+    public prefixUnaryOperator = prefixUnaryOperator;
+    public postfixUnaryOperator = postfixUnaryOperator;
+    public binaryOperator = binaryOperator;
+    public ternaryOperator = ternaryOperator;
     // Define a table
     public define<T>(def: TableDefinition): TableWithColumns<T> {
         def = defaults(def || {}, {

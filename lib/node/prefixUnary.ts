@@ -1,6 +1,6 @@
 import { AliasMixin } from './alias.js';
 import { Node } from './node.js';
-import { ValueExpressionNode } from './_internal.js';
+import { classMap, ValueExpressionNode } from './_internal.js';
 
 export class PrefixUnaryNode extends ValueExpressionNode {
     public left: Node;
@@ -13,3 +13,5 @@ export class PrefixUnaryNode extends ValueExpressionNode {
 
     public as = AliasMixin.as;
 }
+
+classMap.set('PREFIX UNARY', PrefixUnaryNode);

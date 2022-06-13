@@ -9,6 +9,7 @@ import type {
     NotInNode,
     OrderByValueNode,
     PostfixUnaryNode,
+    PrefixUnaryNode,
     SliceNode,
     TernaryNode
 } from './_internal.js';
@@ -127,7 +128,43 @@ export function ValueExpressionBaseMixin<TBase extends abstract new (...args: an
                 else: elseBranch
             });
         }
-    
+
+        public prefixUnaryOperator(operator: string): PrefixUnaryNode {
+            const ctor = classMap.get('PREFIX UNARY')!;
+            return new ctor({
+                left: this.toNode(),
+                operator
+            });
+        };
+
+        public postfixUnaryOperator(operator: string): PostfixUnaryNode {
+            const ctor = classMap.get('POSTFIX UNARY')!;
+            return new ctor({
+                left: this.toNode(),
+                operator
+            });
+        };
+
+        public binaryOperator(operator: string, right: any): BinaryNode {
+            const ctor = classMap.get('BINARY')!;
+            return new ctor({
+                left: this.toNode(),
+                operator,
+                right: processParamOrParams(right)
+            });
+        };
+
+        public ternaryOperator(operator: string, middle: any, separator: string, right: any): TernaryNode {
+            const ctor = classMap.get('TERNARY')!;
+            return new ctor({
+                left: this.toNode(),
+                operator,
+                middle: processParam(middle),
+                separator,
+                right: processParam(right)
+            });
+        };
+
         public isNull = postfixUnaryMethod('IS NULL');
         public isNotNull = postfixUnaryMethod('IS NOT NULL');
         public equals = binaryMethod('=');
