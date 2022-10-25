@@ -907,6 +907,32 @@ Harness.test({
             content: 'test',
             userId: 2
         })
+        .onConflict(),
+    mysql: {
+        throws: true
+    },
+    sqlite: {
+        throws: true
+    },
+    pg: {
+        text: 'INSERT INTO "post" ("content", "userId") VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        string: 'INSERT INTO "post" ("content", "userId") VALUES (\'test\', 2) ON CONFLICT DO NOTHING'
+    },
+    mssql: {
+        throws: true
+    },
+    oracle: {
+        throws: true
+    },
+    params: ['test', 2]
+});
+
+Harness.test({
+    query: post
+        .insert({
+            content: 'test',
+            userId: 2
+        })
         .onConflict({
             constraint: 'conc_userId'
         }),
