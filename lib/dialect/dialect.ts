@@ -87,6 +87,7 @@ export abstract class Dialect<ConfigType> {
     protected visitingReturning: boolean = false;
     protected visitingJoin: boolean = false;
     protected visitingFunctionCall: boolean = false;
+    protected visitingDistinctOn: boolean = false;
     constructor(protected config: ConfigType) {
         this.output = [];
         this.params = [];
@@ -410,7 +411,10 @@ export abstract class Dialect<ConfigType> {
         return [];
     }
     public visitDistinctOn(distinctOnNode: DistinctOnNode): string[] {
-        return [`DISTINCT ON(${distinctOnNode.nodes.map((n) => this.visit(n).join()).join(', ')})`];
+        this.visitingDistinctOn = true;
+        const result: string[] = [`DISTINCT ON(${distinctOnNode.nodes.map((n) => this.visit(n).join()).join(', ')})`];
+        this.visitingDistinctOn = false;
+        return result;
     }
     public visitAlias(aliasNode: AliasNode): string[] {
         const result = [this.visit(aliasNode.value) + this.aliasText + this.quote(aliasNode.alias)];
@@ -705,6 +709,7 @@ export abstract class Dialect<ConfigType> {
                 !this.visitingJoin);
         const inFunctionCall = this.visitingFunctionCall;
         const inCast = this.visitingCast;
+        const inDistinctOn = this.visitingDistinctOn;
         const txt = [];
         let closeParen = 0;
         if (inSelectClause && ((table && !table.alias) || !!columnNode.alias)) {
@@ -778,7 +783,7 @@ export abstract class Dialect<ConfigType> {
                 txt.push(')');
             }
         }
-        if (inSelectClause && !inFunctionCall && !inCast && (columnNode.alias || columnNode.property !== columnNode.name)) {
+        if (inSelectClause && !inFunctionCall && !inCast && !inDistinctOn && (columnNode.alias || columnNode.property !== columnNode.name)) {
             txt.push(this.aliasText + this.quote(columnNode.alias || columnNode.property));
         }
         if (this.visitingCreate || this.visitingAddColumn) {
