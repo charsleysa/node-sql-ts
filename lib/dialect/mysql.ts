@@ -1,6 +1,7 @@
 import assert from 'assert';
 import isNumber from 'lodash/isNumber.js';
 
+import { AsOfNode } from '../node/asOf.js';
 import { BinaryNode } from '../node/binary.js';
 import { ColumnNode } from '../node/column.js';
 import { CreateNode } from '../node/create.js';
@@ -66,6 +67,9 @@ export class Mysql extends Dialect<any> {
             result[2] = '() VALUES ()';
         }
         return result;
+    }
+    public visitAsOf(asOfNode: AsOfNode): string[] {
+        throw new Error('Mysql does not support AS OF.');
     }
     public visitOnDuplicate(onDuplicateNode: OnDuplicateNode): string[] {
         const params: string[] = [];

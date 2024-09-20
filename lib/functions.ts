@@ -74,13 +74,22 @@ const jsonbFunctions = [
     'JSONB_AGG'
 ] as const;
 
+// time travel timestamp functions available to cockroachdb
+const timeTravelFunctions = [
+    'STATEMENT_TIMESTAMP',
+    'FOLLOWER_READ_TIMESTAMP',
+    'WITH_MIN_TIMESTAMP',
+    'WITH_MAX_STALENESS'
+] as const;
+
 const standardFunctionNames = [
     ...aggregateFunctions,
     ...scalarFunctions,
     ...hstoreFunctions,
     ...textsearchFunctions,
     ...dateFunctions,
-    ...jsonbFunctions
+    ...jsonbFunctions,
+    ...timeTravelFunctions
 ] as const;
 
 type StandardFunctions = {

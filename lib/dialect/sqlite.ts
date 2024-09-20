@@ -2,6 +2,7 @@ import assert from 'assert';
 import isArray from 'lodash/isArray.js';
 
 import { AddColumnNode } from '../node/addColumn.js';
+import { AsOfNode } from '../node/asOf.js';
 import { BinaryNode } from '../node/binary.js';
 import { CascadeNode } from '../node/cascade.js';
 import { CreateIndexNode } from '../node/createIndex.js';
@@ -47,6 +48,9 @@ export class Sqlite extends Dialect<{ dateTimeMillis?: boolean }> {
             value = super._getParameterValue(value, quoteChar);
         }
         return value;
+    }
+    public visitAsOf(asOfNode: AsOfNode): string[] {
+        throw new Error('SQLite does not support AS OF.');
     }
     public visitReplace(replaceNode: ReplaceNode): string[] {
         // don't use table.column for replaces

@@ -4,6 +4,7 @@
 import assert from 'assert';
 
 import { AlterNode } from '../node/alter.js';
+import { AsOfNode } from '../node/asOf.js';
 import { BinaryNode } from '../node/binary.js';
 import { CaseNode } from '../node/case.js';
 import { ColumnNode } from '../node/column.js';
@@ -46,6 +47,9 @@ export class Mssql extends Dialect<{ questionMarkParameterPlaceholder?: boolean 
             return '?';
         }
         return `@${index}`;
+    }
+    public visitAsOf(asOfNode: AsOfNode): string[] {
+        throw new Error('Mssql does not support AS OF.');
     }
     public visitReplace(replaceNode: ReplaceNode): string[] {
         throw new Error('Mssql does not support REPLACE.');

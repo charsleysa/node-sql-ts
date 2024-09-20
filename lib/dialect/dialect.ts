@@ -6,6 +6,7 @@ import { AddColumnNode } from '../node/addColumn.js';
 import { AliasNode } from '../node/alias.js';
 import { AlterNode } from '../node/alter.js';
 import { ArrayCallNode } from '../node/arrayCall.js';
+import { AsOfNode } from '../node/asOf.js';
 import { AtNode } from '../node/at.js';
 import { BinaryNode } from '../node/binary.js';
 import { CascadeNode } from '../node/cascade.js';
@@ -208,6 +209,8 @@ export abstract class Dialect<ConfigType> {
                 return this.visitCast(node as CastNode);
             case 'FROM':
                 return this.visitFrom(node as FromNode);
+            case 'AS OF':
+                return this.visitAsOf(node as AsOfNode);
             case 'WHERE':
                 return this.visitWhere(node as WhereNode);
             case 'ORDER BY':
@@ -444,6 +447,10 @@ export abstract class Dialect<ConfigType> {
         for (const node of fromNode.nodes) {
             result = result.concat(this.visit(node));
         }
+        return result;
+    }
+    public visitAsOf(asOfNode: AsOfNode): string[] {
+        const result = ['AS OF SYSTEM TIME', ...asOfNode.nodes.flatMap(this.visit.bind(this))];
         return result;
     }
     public visitWhere(whereNode: WhereNode): string[] {

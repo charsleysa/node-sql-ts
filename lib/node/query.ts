@@ -49,6 +49,7 @@ import { TruncateNode } from './truncate.js';
 import { UpdateNode } from './update.js';
 import { ValueExpressionBaseNode } from './_internal.js';
 import { WhereNode } from './where.js';
+import { AsOfNode } from './asOf.js';
 
 // get the first element of an arguments if it is an array, else return arguments as an array
 const getArrayOrArgsAsArray = <T>(args: (T | T[])[]): T[] => {
@@ -149,6 +150,11 @@ export class Query<T> extends ValueExpressionBaseNode {
             this.add(new FromNode().add(nodeableOrTextNode(node)));
         }
 
+        return this;
+    }
+
+    public asOf(node: INodeable | string): this {
+        this.add(new AsOfNode().add(nodeableOrTextNode(node)));
         return this;
     }
 

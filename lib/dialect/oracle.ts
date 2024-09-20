@@ -2,6 +2,7 @@ import assert from 'assert';
 
 import { AliasNode } from '../node/alias.js';
 import { AlterNode } from '../node/alter.js';
+import { AsOfNode } from '../node/asOf.js';
 import { BinaryNode } from '../node/binary.js';
 import { CascadeNode } from '../node/cascade.js';
 import { CaseNode } from '../node/case.js';
@@ -94,6 +95,10 @@ export class Oracle extends Dialect<any> {
             return dropColumn();
         }
         return super.visitAlter(alterNode);
+    }
+    public visitAsOf(asOfNode: AsOfNode): string[] {
+        const result = ['AS OF TIMESTAMP', ...asOfNode.nodes.flatMap(this.visit.bind(this))];
+        return result;
     }
     public visitTable(tableNode: TableNode): string[] {
         const table = tableNode.table;
