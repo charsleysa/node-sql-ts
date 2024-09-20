@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es2016",
+        "target": "es2022",
         "module": "esnext",
         "moduleResolution": "node",
         "resolveJsonModule": true,
@@ -9,7 +9,7 @@
         "importHelpers": true,
         "pretty": true,
         "sourceMap": true,
-        "lib": ["es2017", "esnext.asynciterable"],
+        "lib": ["es2022", "esnext.asynciterable"],
         "strict": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
