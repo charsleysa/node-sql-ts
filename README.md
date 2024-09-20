@@ -1,4 +1,4 @@
-# node-sql-ts
+# sql-ts
 
 _sql string builder for node_ - supports PostgreSQL, mysql, Microsoft SQL Server, Oracle and sqlite dialects.
 
