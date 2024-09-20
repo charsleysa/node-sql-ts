@@ -202,7 +202,7 @@ export class Mssql extends Dialect<{ questionMarkParameterPlaceholder?: boolean 
         createResult.push(`(${colNodes.map(this.visit.bind(this)).join(', ')})`);
         this.visitingCreate = false;
         let tableStr = tableResult.join(' ');
-        tableStr = tableStr.replace("'", "''");
+        tableStr = tableStr.replace(/'/g, "''");
         tableStr = `'${tableStr.substring(1, tableStr.length - 1)}'`;
         const whereClause = `WHERE TABLE_NAME = ${tableStr}`;
         // TODO: need to add schema check, sudo code:
