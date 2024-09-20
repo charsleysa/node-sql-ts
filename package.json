@@ -25,31 +25,31 @@
         "release:patch": "npm run test && npm run build && npm version patch -m \"chore: release\" && git push origin master --tags && npm publish"
     },
     "engines": {
-        "node": "^12.20.0 || >=14.15.0"
+        "node": "^18 || ^20 || >=22"
     },
     "dependencies": {
         "lodash": "^4.17.21",
         "sliced": "~1.0.x",
-        "tslib": "~2.3.0"
+        "tslib": "~2.7.0"
     },
     "devDependencies": {
-        "@rollup/plugin-typescript": "^8.2.1",
-        "@types/lodash": "^4.14.170",
-        "@types/mocha": "^8.2.2",
-        "@types/node": "^14.17.4",
-        "@typescript-eslint/eslint-plugin": "^4.28.0",
-        "@typescript-eslint/parser": "^4.28.0",
-        "eslint": "^7.29.0",
-        "eslint-config-prettier": "^8.3.0",
-        "eslint-plugin-import": "^2.23.4",
-        "eslint-plugin-jsdoc": "^35.4.0",
+        "@rollup/plugin-typescript": "^11.1.6",
+        "@types/lodash": "^4.17.7",
+        "@types/mocha": "^10.0.8",
+        "@types/node": "^20.16.5",
+        "@typescript-eslint/eslint-plugin": "^8.6.0",
+        "@typescript-eslint/parser": "^8.6.0",
+        "eslint": "^8.57.1",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-import": "^2.30.0",
+        "eslint-plugin-jsdoc": "^50.2.4",
         "eslint-plugin-prefer-arrow": "^1.2.3",
-        "eslint-plugin-unicorn": "^33.0.1",
-        "mocha": "^9.0.1",
-        "rollup-plugin-delete": "^2.0.0",
-        "rollup-plugin-dts": "^3.0.2",
-        "ts-node": "^10.0.0",
-        "typescript": "^4.3.4"
+        "eslint-plugin-unicorn": "^55.0.0",
+        "mocha": "^10.7.3",
+        "rollup-plugin-delete": "^2.1.0",
+        "rollup-plugin-dts": "^6.1.1",
+        "ts-node": "^10.9.2",
+        "typescript": "~5.5.0"
     },
     "mocha": {
         "reporter": "dot",
