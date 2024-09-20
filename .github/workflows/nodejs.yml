@@ -7,11 +7,11 @@ jobs:
         name: 'Build & Test'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
             - name: Setup node
-              uses: actions/setup-node@v1
+              uses: actions/setup-node@v4
               with:
-                  node-version: '14'
+                  node-version: '20'
             - name: npm install --global rollup
               run: npm install --global rollup
               env:
