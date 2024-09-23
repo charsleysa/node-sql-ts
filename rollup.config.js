@@ -33,6 +33,32 @@ export default [
         ]
     },
     {
+        input: './lib/index.ts',
+        output: {
+            file: './dist/lib.cjs',
+            format: 'commonjs',
+            sourcemap: true
+        },
+        external: [
+            'assert',
+            'lodash/defaults.js',
+            'lodash/flatten.js',
+            'lodash/fromPairs.js',
+            'lodash/isArray.js',
+            'lodash/isNumber.js',
+            'lodash/isFunction.js',
+            'lodash/map.js',
+            'lodash/padStart.js',
+            'lodash/reduce.js',
+            'sliced'
+        ],
+        plugins: [
+            typescript({
+                tsconfig: './tsconfig.build.json'
+            })
+        ]
+    },
+    {
         input: './dist/dts/index.d.ts',
         output: {
             file: './dist/lib.d.ts',

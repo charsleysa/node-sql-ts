@@ -13,7 +13,13 @@
         "url": "git://github.com/charsleysa/node-sql-ts.git"
     },
     "type": "module",
-    "exports": "./dist/lib.js",
+    "exports": {
+        ".": {
+            "import": "./dist/lib.js",
+            "require": "./dist/lib.cjs",
+            "types": "./dist/lib.d.ts"
+        }
+    },
     "types": "./dist/lib.d.ts",
     "scripts": {
         "pretest": "eslint --ext .ts ./lib && eslint --ext .ts ./test && rollup -c && tsc -p ./test/tsconfig.json",
@@ -29,8 +35,7 @@
     },
     "dependencies": {
         "lodash": "^4.17.21",
-        "sliced": "~1.0.x",
-        "tslib": "~2.7.0"
+        "sliced": "~1.0.x"
     },
     "devDependencies": {
         "@rollup/plugin-typescript": "^11.1.6",
