@@ -2,7 +2,7 @@
     "compilerOptions": {
         "target": "es2022",
         "module": "esnext",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "noEmitHelpers": true,
@@ -16,7 +16,8 @@
         "removeComments": false,
         "noImplicitReturns": true,
         "declaration": true,
-        "typeRoots": ["@types", "node_modules/@types"]
+        "typeRoots": ["./@types", "./node_modules/@types"],
+        "types": ["lodash", "node", "sliced"]
     },
     "exclude": ["node_modules", "./dist"],
     "compileOnSave": true,

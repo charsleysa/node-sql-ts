@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import assert from 'assert';
 import { DEFAULT_DIALECT, getDialect } from '../dialect/mapper.js';
 import type { Dialect } from '../dialect/dialect.js';

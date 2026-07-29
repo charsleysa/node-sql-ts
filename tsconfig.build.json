@@ -1,9 +1,9 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
-        "baseUrl": "./lib",
         "outDir": "./dist",
-        "declarationDir": "./dts"
+        "rootDir": "./lib",
+        "declarationDir": "./dist/dts"
     },
     "include": ["./lib/**/*.ts"]
 }

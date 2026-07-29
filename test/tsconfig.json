@@ -1,7 +1,8 @@
 {
     "extends": "../tsconfig.json",
     "compilerOptions": {
-        "outDir": "../spec"
+        "outDir": "../spec",
+        "types": ["lodash", "mocha", "node", "sliced"]
     },
     "include": ["./*.ts", "./**/*.ts", "./**/*.js", "./**/*.d.ts"]
 }
