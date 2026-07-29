@@ -366,7 +366,7 @@ export class Query<T> extends ValueExpressionBaseNode {
         return this.add(onDuplicate);
     }
 
-    public onConflict(options?: { constraint: string; update?: string[] } | { columns: string[]; update?: string[] }): this {
+    public onConflict(options?: { constraint: string; update?: string[] } | { columns: string[]; where?: INodeable; update?: string[] }): this {
         const onConflict = new OnConflictNode(options);
         return this.add(onConflict);
     }

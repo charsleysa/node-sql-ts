@@ -1063,6 +1063,9 @@ export abstract class Dialect<ConfigType> {
                 columns.push(this.quote(table.getColumn(onConflictNode.columns[i])!.name));
             }
             result.push('(' + columns.join(', ') + ')');
+            if (onConflictNode.where) {
+                result.push('WHERE', ...this.visit(onConflictNode.where));
+            }
         }
         if (onConflictNode.update) {
             updateClause.push('DO UPDATE SET');

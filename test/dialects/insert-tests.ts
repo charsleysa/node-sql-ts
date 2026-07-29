@@ -816,6 +816,38 @@ Harness.test({
             userId: 2
         })
         .onConflict({
+            columns: ['userId', 'content'],
+            where: post.length.gt(250),
+            update: ['content', 'userId'],
+        }),
+    mysql: {
+        throws: true
+    },
+    sqlite: {
+        throws: true
+    },
+    pg: {
+        text:
+            'INSERT INTO "post" ("content", "userId") VALUES ($1, $2) ON CONFLICT ("userId", "content") WHERE ("post"."length" > $3) DO UPDATE SET "content" = EXCLUDED."content", "userId" = EXCLUDED."userId"',
+        string:
+            'INSERT INTO "post" ("content", "userId") VALUES (\'test\', 2) ON CONFLICT ("userId", "content") WHERE ("post"."length" > 250) DO UPDATE SET "content" = EXCLUDED."content", "userId" = EXCLUDED."userId"'
+    },
+    mssql: {
+        throws: true
+    },
+    oracle: {
+        throws: true
+    },
+    params: ['test', 2, 250]
+});
+
+Harness.test({
+    query: post
+        .insert({
+            content: 'test',
+            userId: 2
+        })
+        .onConflict({
             columns: ['userId'],
             update: ['content']
         })
